@@ -32,11 +32,11 @@ if (isset($_GET['pageId'])) {
 	} else {
 		$pageType = '';
 	}
-	// Get the addon variables
-	$addonVariables = parse_ini_file(ADDONSFOLDER . $pageType . '.ini', true);
-	$addonVariables = $addonVariables['variables'];
-	foreach($addonVariables as $key => $value) {
-		// Loop through all the addon variables, checking if we have a value
+	// Get the page variables
+	$pageVariables = parse_ini_file(PAGESFOLDER . $pageType . '.ini', true);
+	$pageVariables = $pageVariables['variables'];
+	foreach($pageVariables as $key => $value) {
+		// Loop through all the page variables, checking if we have a value
 		if (isset($_POST[$key])) {
 			$$key = $_POST[$key];
 		} else if (isset($pageVariables)) {
@@ -64,7 +64,7 @@ if (isset($_GET['pageId'])) {
 				array_push($errors, $error);
 			}
 			$pageVariables = array();
-			foreach($addonVariables as $key => $value) {
+			foreach($pageVariables as $key => $value) {
 				if ($_POST[$key]) {
 					$pageVariables[$key] = $_POST[$key];
 				} else {
@@ -109,7 +109,7 @@ if (isset($_GET['pageId'])) {
 		Page Title: <input type="text" value="<?php echo $pageTitle; ?>" name="pageTitle"><br>
 		Page Type: <?php echo $pageType; ?><br>
 		<?php
-		foreach($addonVariables as $key => $value) {
+		foreach($pageVariables as $key => $value) {
 			echo $key . ':';
 			?>
 			<input type="text" value="<?php echo $$key; ?>" name="<?php echo $key; ?>"><br>
@@ -122,7 +122,7 @@ if (isset($_GET['pageId'])) {
 } else {
 	$pages = $mapper->GetAllPages();
 	// Get all page types
-	$pageTypes = glob(ADDONSFOLDER . '*.php', GLOB_NOSORT);
+	$pageTypes = glob(PAGESFOLDER . '*.php', GLOB_NOSORT);
 	?>
 	<table>
 		<th>Page Title</th>
@@ -156,7 +156,7 @@ if (isset($_GET['pageId'])) {
 		<select name="pageType">
 			<?php
 				foreach ($pageTypes as $type) {
-					$type = str_replace(ADDONSFOLDER, '', $type);
+					$type = str_replace(PAGESFOLDER, '', $type);
 					$type = str_replace('.php', '', $type);
 					?>
 					<option value="<?php echo $type; ?>"><?php echo $type; ?></option>

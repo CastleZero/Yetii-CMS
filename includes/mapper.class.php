@@ -14,7 +14,7 @@ class Mapper {
 	protected $dbh;
 	
 	public function __construct() {
-		$this->dbh = new PDO('mysql:host=localhost;dbname=cms', 'cms', 'mypassword');
+		$this->dbh = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASS);
 	}
 
 	public function GetPageContent($pageURL) {

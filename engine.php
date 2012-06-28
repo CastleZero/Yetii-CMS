@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once('config.php');
+require_once('includes/config.inc.php');
 require_once('includes/simple_html_dom.php');
 require_once('includes/mapper.class.php');
 require_once('includes/functions.inc.php');
@@ -57,7 +57,7 @@ if ($valuesArray = $mapper->GetPageContent($pageName)) {
 	extract($pageVariables);
 	// Get the page contents by using the page layout
 	ob_start();
-	include('addons/' . $pageType . '.php');
+	include(PAGESFOLDER . $pageType . '.php');
 	$pageContents = ob_get_clean();
 } else {
 	// Page does not exist in the database
@@ -127,7 +127,7 @@ foreach($sections['sections'] as $section) {
 $snippets = parse_ini_file('templates/' . $template . '.ini', true);
 foreach($snippets['snippets'] as $snippet) {
 	ob_start();
-	include('snippets/' . $snippet['snippetName'] . '.php');
+	include(SNIPPETSFOLDER . $snippet['snippetName'] . '.php');
 	$snippetContent = ob_get_clean();
 	$html->find($snippet['div'], 0)->innertext = $snippetContent;
 }
