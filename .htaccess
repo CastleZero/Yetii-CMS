@@ -1,0 +1,20 @@
+Options -Indexes +FollowSymlinks -MultiViews
+ErrorDocument 404 /404.html
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+#If the URL does not exist, but the URL+.php exists, then append the .php extension to it
+RewriteCond %{SCRIPT_FILENAME} !-f
+RewriteCond %{SCRIPT_FILENAME}.php -f
+RewriteRule ^(.*)$ engine.php?page=$1.php [QSA,L]
+
+# If the requested file is a php or HTML file
+#RewriteCond %{REQUEST_URI} \.(php|html)$
+# If the requested file is not a css or JavaScript file
+RewriteCond %{REQUEST_URI} !\.(css|js)$
+# Rewrite it to the engine
+RewriteRule ^(.*)$ engine.php?page=$1 [QSA,L]
+</IfModule>
+
+
