@@ -15,6 +15,7 @@ $scripts = '<script type="text/javascript" src="https://www.google.com/jsapi"></
 // Get all settings
 $mapper = new Mapper();
 $settingsArray = $mapper->GetSettings();
+// Extract them into variables, e.g. $template
 extract($settingsArray);
 unset($mapper);
 // Get all the links
@@ -98,40 +99,74 @@ if (isset($requiredAuth)) {
 		}
 	}
 }
-// Create the HTML object
-//$html = new simple_html_dom();
-// Non-OO method
-$html = file_get_html('templates/' . $template . '.html');
+// Create the page title
 if ($pageTitle != '') {
 	$pageTitle .= ' - ' . $websiteName;
 } else {
 	$pageTitle = $websiteName;
 }
-$html->find('title', 0)->innertext = $pageTitle;
-$html->find('head', 0)->innertext = $extraHeaderInformation . $html->find('head', 0)->innertext;
-$html->find('head', 0)->innertext .= $scripts;
-if ($html->find('nav ul', 0)) {
-	// The template already has some default links, or already has an unordered list, so add links to the start
-	$html->find('nav ul', 0)->innertext = $links . $html->find('nav ul', 0)->innertext;
-} else {
-	// The template does not have any default links, so create the unordered list
-	$html->find('nav', 0)->innertext = '<ul>' . $links . '</ul>';
+// Create the page head
+$head = $scripts;
+// Create the page navigation
+$navigation = '<ul>' . $links . '</ul>';
+// Create the footer
+$footer = $footerText;
+// Create the HTML object
+//$html = new simple_html_dom();
+// Non-OO method
+$html = file_get_html(TEMPLATESFOLDER . $template . '/index.html');
+$includedTemplateFiles = $html->find('[href]');
+for ($i = 0; $i < count($includedTemplateFiles); $i++) {
+	$link = $includedTemplateFiles[$i];
+	$href = $link->attr['href'];
+	if (substr($href, 0, 1) != '/') {
+		$href = '/' . $href;
+	}
+	$href = '/' . TEMPLATESFOLDER . $template . $href;
+	$html->find('[href]', $i)->attr['href'] = $href;
 }
-$html->find('footer', 0)->innertext = $footerText;
-// Replace all the sections
-$sections = parse_ini_file('templates/' . $template . '.ini', true);
-foreach($sections['sections'] as $section) {
-	$html->find($section['div'], 0)->innertext = $$section['variable'];
+$head .= $html->find('head', 0);
+$html->find('head', 0)->innertext = $head;
+// Get the elements array from the elements ini file
+$elements = parse_ini_file(TEMPLATESFOLDER . $template . '/elements.ini', true);
+// Replace all the elements in the ini file
+foreach($elements as $element) {
+	if (isset($element['replace'])) {
+		$replace = $element['replace'];
+	} else {
+		$replace = 'full';
+	}
+	if (isset($$element['variable'])) {
+		if ($replace == 'full') {
+			if($html->find($element['name'])) {
+				$html->find($element['name'], 0)->innertext = $$element['variable'];
+			} else if ($html->find('div[id=' . $element['name'] . ']')) {
+				$html->find('div[id=' . $element['name'] . ']', 0)->innertext = $$element['variable'];
+			} else {
+				echo 'Error: ' . $element['name'] . ' not found as a div or an element<br>';
+			}
+		} else if ($replace == 'after') {
+			if($html->find($element['name'])) {
+				$html->find($element['name'], 0)->innertext .= $$element['variable'];
+			} else if ($html->find('div[id=' . $element['name'] . ']')) {
+				$html->find('div[id=' . $element['name'] . ']', 0)->innertext .= $$element['variable'];
+			} else {
+				echo 'Error: ' . $element['name'] . ' not found as a div or an element<br>';
+			}
+		} else if ($replace == 'before') {
+			if($html->find($element['name'])) {
+				$html->find($element['name'], 0)->innertext = $$element['variable'] . $html->find($element['name'], 0)->innertext;
+			} else if ($html->find('div[id=' . $element['name'] . ']')) {
+				$html->find('div[id=' . $element['name'] . ']', 0)->innertext = $$element['variable'] . $html->find('div[id=' . $element['name'] . ']', 0)->innertext;
+			} else {
+				echo 'Error: ' . $element['name'] . ' not found as a div or an element<br>';
+			}
+		}
+	} else {
+		echo 'Variable ' . $element['variable'] . ' could not be found. Please check your elements.ini file.<br>';
+	}
 }
-// Insert all our snippets
-$snippets = parse_ini_file('templates/' . $template . '.ini', true);
-foreach($snippets['snippets'] as $snippet) {
-	ob_start();
-	include(SNIPPETSFOLDER . $snippet['snippetName'] . '.php');
-	$snippetContent = ob_get_clean();
-	$html->find($snippet['div'], 0)->innertext = $snippetContent;
-}
-// Display the HTML
+// Save and display the HTML
 $html = $html->save();
 echo $html;
 ?>

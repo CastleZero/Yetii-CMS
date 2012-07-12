@@ -38,7 +38,12 @@ if (isset($_POST['email']) || isset($_POST['password'])) {
 	} else {
 		// Both the email and password were submitted
 		$mapper = new Mapper;
-		extract($mapper->CheckUserCredentials($email, $password)); // The password is hashed and salted in this function
+		$results = $mapper->CheckUserCredentials($email, $password); // The password is hashed and salted in this function
+		if (is_array($results)) {
+			extract($results);
+		} else {
+			$authLevel = $results;
+		}
 		if ($authLevel === false) {
 			// Credentials were correct but the account has problems
 			$error = array('message'=>'Incorrect email/password combination');
@@ -71,8 +76,8 @@ if (count($errors) > 0) {
 ?>
 <form action="login.php<?php if (isset($_GET['returnAddress'])) echo '?returnAddress=' . $_GET['returnAddress']; ?>" method="POST">
 	<label for="email">Email: </label>
-	<input type="email" name="email" id="email" <?php if (isset($_POST['email'])) echo 'value="' . $_POST['email'] . '"' ?> /><br>
+	<input type="email" name="email" id="email" <?php if (isset($_POST['email'])) echo 'value="' . $_POST['email'] . '"' ?> autofocus="autofocus"><br>
 	<label for="password">Password: </label>
-	<input type="password" name="password" id="password" /><br>
-	<input type="submit" name="submit" value="Log In" class="button"/>
+	<input type="password" name="password" id="password"><br>
+	<input type="submit" name="submit" value="Log In">
 </form>

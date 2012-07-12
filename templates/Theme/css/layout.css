@@ -1,0 +1,34 @@
+/* --------------------------------------------------
+Large screens (e.g. PC monitors). Show one large column and (optionally) 1 side column
+-------------------------------------------------- */
+
+#pagecontainer {
+	padding: 1.618em;
+	margin: 0 auto; 
+	max-width: 80em;
+}
+
+#usermenu, #navigation {
+	width: 75%;
+}
+
+#map {
+	float: left;
+	width: 85%;
+}
+
+/* --------------------------------------------------
+Medium-sized screens (e.g. iPad). Show one large column
+-------------------------------------------------- */
+
+@media screen and (min-width: 30em) and (max-width: 63.236em) {
+	#pagecontainer {
+		width: 90%;
+		min-width: 30em;
+		margin: 0 auto;
+	}
+
+	#map {
+		width: 100%;
+	}
+}

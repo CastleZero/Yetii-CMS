@@ -3,6 +3,7 @@ $title = 'Pages';
 $requiredAuth = 1;
 $mapper = new Mapper();
 if (isset($_GET['pageId'])) {
+	// Editing or adding a page
 	$pageId = $_GET['pageId'];
 	if (is_numeric($pageId)) {
 		// Get the pages information

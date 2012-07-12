@@ -1,0 +1,296 @@
+/* ==================================================
+CSS Normalisation
+A lot of the rules in the this section come from https://github.com/necolas/normalize.css
+================================================== */
+
+/* --------------------------------------------------
+Corrects text resizing oddly in IE6/7 when body font-size is set using em units
+-------------------------------------------------- */
+
+html {
+	font-size: 100%; /*  */
+}
+
+/* --------------------------------------------------
+Addresses margins handled incorrectly in IE6/7
+-------------------------------------------------- */
+
+body {
+	margin: 0;
+}
+
+/* --------------------------------------------------
+Corrects block display not defined in IE6/7/8/9 & FF3
+-------------------------------------------------- */
+
+article, aside, details, figcaption, figure, footer, header, hgroup, nav, section, summary {
+    display: block;
+}
+
+/* --------------------------------------------------
+Addresses font-family inconsistency between 'textarea' and other form elements.
+-------------------------------------------------- */
+
+html, button, input, select, textarea {
+    font-family: 'Times New Roman', Times, serif;;
+}
+
+/* --------------------------------------------------
+Embedded content
+-------------------------------------------------- */
+
+img {
+    border: 0; /* Removes border when inside 'a' element in IE6/7/8/9, FF3 */
+    -ms-interpolation-mode: bicubic; /* Improves image quality when scaled in IE7 */
+}
+
+/* --------------------------------------------------
+Forms
+-------------------------------------------------- */
+
+form {
+    margin: 0; /* Corrects margin displayed oddly in IE6/7 */
+}
+
+/* Define consistent border, margin, and padding */
+fieldset {
+    border: 1px solid #c0c0c0;
+    margin: 0 2px;
+    padding: 0.35em 0.625em 0.75em;
+}
+
+legend {
+    border: 0; /* Corrects color not being inherited in IE6/7/8/9 */
+    padding: 0;
+    white-space: normal; /* Corrects text not wrapping in FF3 */
+    *margin-left: -7px; /* Corrects alignment displayed oddly in IE6/7 */
+}
+
+button, input, select, textarea {
+    font-size: 0.8em; /* Corrects font size not being inherited in all browsers */
+    margin: 0.2em; /* Addresses margins set differently in IE6/7, FF3+, S5, Chrome */
+    vertical-align: baseline; /* Improves appearance and consistency in all browsers */
+    *vertical-align: middle; /* Improves appearance and consistency in all browsers */
+}
+
+button, input {
+    line-height: normal; /* Addresses FF3/4 setting line-height on 'input' using !important in the UA stylesheet */
+}
+
+button, input[type="button"], input[type="reset"], input[type="submit"] {
+    cursor: pointer; /* Improves usability and consistency of cursor style between image-type 'input' and others */
+    -webkit-appearance: button; /* Corrects inability to style clickable 'input' types in iOS */
+    *overflow: visible;  /* Removes inner spacing in IE7 without affecting normal text inputs */
+}
+
+/* Re-set default cursor for disabled elements */
+button[disabled], input[disabled] {
+    cursor: default;
+}
+
+input[type="checkbox"], input[type="radio"] {
+    box-sizing: border-box; /* Addresses box sizing set to content-box in IE8/9 */
+    padding: 0; /* Removes excess padding in IE8/9 */
+    *height: 13px; /* Removes excess padding in IE7 */
+    *width: 13px; /* Removes excess padding in IE7 */
+}
+
+/* Removes inner padding and border in FF3+ */
+button::-moz-focus-inner, input::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+}
+
+textarea {
+    overflow: auto; /* Removes default vertical scrollbar in IE6/7/8/9 */
+    vertical-align: top; /* Improves readability and alignment in all browsers */
+}
+
+
+/* ==================================================
+Custom Styles
+================================================== */
+
+/* --------------------------------------------------
+Base Layout
+-------------------------------------------------- */
+
+html { 
+	overflow-y: scroll;
+	background: #FFF;
+	height: 100%;
+	background-image: url('../images/background.png');
+}
+
+body {
+	font-size: 1em;
+	color: #333;
+	height: 100%;
+}
+
+/* --------------------------------------------------
+Typography
+-------------------------------------------------- */
+
+h1 {
+    font-size: 2em;
+    margin: 0.67em 0;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 0.83em 0;
+}
+
+h3 {
+	font-size: 1.17em;
+    margin: 1em 0;
+}
+
+h4 {
+    font-size: 1em;
+    margin: 1.33em 0;
+}
+
+h5 {
+    font-size: 0.83em;
+    margin: 1.67em 0;
+}
+
+h6 {
+    font-size: 0.75em;
+    margin: 2.33em 0;
+}
+
+/* --------------------------------------------------
+Links
+-------------------------------------------------- */
+
+a, a:visited {
+	outline: none;
+	color: #439BBD;
+	text-decoration: underline;
+}
+
+a:hover {
+	outline: none;
+	text-decoration:none;
+}
+
+a:active, a:focus {
+	outline: none;
+}
+
+
+/* --------------------------------------------------
+Global Layout
+-------------------------------------------------- */
+
+#holder {
+	min-height: 100%;
+	position: relative;
+}
+
+header {
+	min-height: 1em;
+	background: #EEE;
+}
+
+#navigation li {
+	display: inline;
+}
+
+#pagecontainer {
+	padding-bottom: 4em !important; /* Force footer to be below all content */
+	/* overflow: hidden; */
+}
+
+footer {
+	left: 0;
+	right: 0;
+	bottom: 0;
+	clear: both;
+	height: 4em;
+	position: absolute;
+	text-align: center;
+}
+
+/* --------------------------------------------------
+Map Styles (including fullscreen)
+-------------------------------------------------- */
+
+#mapcontainer {
+	min-height: 40em; /* Also set via javascript to keep it smaller than the height of the viewport */
+}
+
+#map {
+	min-height: inherit;
+	//min-height:expression(this.parentNode.currentStyle['min-height']);
+}
+
+#map:-moz-full-screen {
+    width: 100% !important;
+    height: 100% !important;
+    background: red;
+}
+
+#map:-webkit-full-screen {
+    width: 100% !important;
+    height: 100% !important;
+    background: red;
+}
+
+#map:fullscreen {
+    width: 100% !important;
+    height: 100% !important;
+    background: red;
+}
+
+.overlay {
+	position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 1000 !important;
+}
+
+#fullscreenbutton {
+	position: fixed;
+	top: 0;
+	left: 40%;
+	z-index: 1001;
+	display: none;
+	width: 20%;
+	text-align: center;
+	background-color: yellow;
+	padding: 0.5em 0;
+}
+
+/* --------------------------------------------------
+Small Screens (e.g. iPhones)
+-------------------------------------------------- */
+
+#usermenu {
+	width: 100%;
+	margin: auto;
+	padding-top: 0.5em;
+	text-align: right;
+}
+
+
+#navigation {
+	width: 100%;
+	padding: 0.5em 0;
+	margin: auto;
+}
+
+#pagecontainer {
+	padding: 0.809em;
+    max-width: 30em;
+    margin: 0;
+}
+
+#map {
+	width: 100%;
+}
