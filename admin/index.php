@@ -18,4 +18,9 @@ $requiredAuth = 3;
 			Settings
 		</li>
 	</a>
+	<a href="snippets">
+		<li>
+			Snippets
+		</li>
+	</a>
 </ul>

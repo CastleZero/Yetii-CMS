@@ -18,15 +18,6 @@ $settingsArray = $mapper->GetSettings();
 // Extract them into variables, e.g. $template
 extract($settingsArray);
 unset($mapper);
-// Get all the links
-$mapper = new Mapper();
-$linksArray = $mapper->GetLinks();
-$links = '';
-// Create a string with all the links as list items
-foreach($linksArray as $linkArray) {
-	$links .= '<a href="' . $linkArray['url'] . '" title="' . $linkArray['title'] . '"><li>' . $linkArray['name'] . '</li></a>';
-}
-unset($mapper);
 // Get the page Id
 if (isset($_GET['page'])) {
 	// Get the page Id from the GET value
@@ -93,11 +84,16 @@ if (isset($requiredAuth)) {
 		} else {
 			// User is not logged in, send them to the log in page
 			$url = parse_url($_SERVER["REQUEST_URI"]);
-			var_dump($url);
 			header('Location: /login.php?returnAddress=' . $url['path']);
 			exit;
 		}
 	}
+}
+if (isset($_GET['template'])) {
+	// We want a custom template
+	$templateFolder = $_GET['template']; 
+} else {
+	$templateFolder = TEMPLATESFOLDER . $template;
 }
 // Create the page title
 if ($pageTitle != '') {
@@ -107,14 +103,14 @@ if ($pageTitle != '') {
 }
 // Create the page head
 $head = $scripts;
-// Create the page navigation
-$navigation = '<ul>' . $links . '</ul>';
 // Create the footer
 $footer = $footerText;
+/* The OO method creates some errors, so will not be used
 // Create the HTML object
-//$html = new simple_html_dom();
+$html = new simple_html_dom();
+*/
 // Non-OO method
-$html = file_get_html(TEMPLATESFOLDER . $template . '/index.html');
+$html = file_get_html($templateFolder . '/index.html');
 $includedTemplateFiles = $html->find('[href]');
 for ($i = 0; $i < count($includedTemplateFiles); $i++) {
 	$link = $includedTemplateFiles[$i];
@@ -122,48 +118,60 @@ for ($i = 0; $i < count($includedTemplateFiles); $i++) {
 	if (substr($href, 0, 1) != '/') {
 		$href = '/' . $href;
 	}
-	$href = '/' . TEMPLATESFOLDER . $template . $href;
+	$href = '/' . $templateFolder . $href;
 	$html->find('[href]', $i)->attr['href'] = $href;
 }
 $head .= $html->find('head', 0);
 $html->find('head', 0)->innertext = $head;
 // Get the elements array from the elements ini file
-$elements = parse_ini_file(TEMPLATESFOLDER . $template . '/elements.ini', true);
+$elements = parse_ini_file($templateFolder . '/elements.ini', true);
 // Replace all the elements in the ini file
-foreach($elements as $element) {
-	if (isset($element['replace'])) {
-		$replace = $element['replace'];
-	} else {
-		$replace = 'full';
-	}
-	if (isset($$element['variable'])) {
-		if ($replace == 'full') {
-			if($html->find($element['name'])) {
-				$html->find($element['name'], 0)->innertext = $$element['variable'];
-			} else if ($html->find('div[id=' . $element['name'] . ']')) {
-				$html->find('div[id=' . $element['name'] . ']', 0)->innertext = $$element['variable'];
+foreach ($elements as $element) {
+	if (array_key_exists('element', $element)) {
+		$elementName = $element['element'];
+		if (isset($element['replace'])) {
+			$replace = $element['replace'];
+		} else {
+			$replace = 'full';
+		}
+		if (array_key_exists('variable', $element)) {
+			// Replacing an element with a variable
+			$variable = $element['variable'];
+			if (isset($$variable)) {
+				$fillContent = $$variable;
 			} else {
-				echo 'Error: ' . $element['name'] . ' not found as a div or an element<br>';
+				echo 'There was an error in the ini file for the template; The variable "' . $variable . '" could not be found.<br>';
 			}
-		} else if ($replace == 'after') {
-			if($html->find($element['name'])) {
-				$html->find($element['name'], 0)->innertext .= $$element['variable'];
-			} else if ($html->find('div[id=' . $element['name'] . ']')) {
-				$html->find('div[id=' . $element['name'] . ']', 0)->innertext .= $$element['variable'];
+		} else if (array_key_exists('snippet', $element)) {
+			// Replace an element with a snippet
+			$snippet = $element['snippet'];
+			if (is_file(SNIPPETSFOLDER . $snippet . '/index.php')) {
+				// Snippet is a valid snippet
+				ob_start();
+				include(SNIPPETSFOLDER . $snippet . '/index.php');
+				$fillContent = ob_get_clean();
 			} else {
-				echo 'Error: ' . $element['name'] . ' not found as a div or an element<br>';
+				// Snippet is invalid
+				echo 'There was an error in the ini file for the template; "' . $snippet . '" is not a valid snippet.<br>';
 			}
-		} else if ($replace == 'before') {
-			if($html->find($element['name'])) {
-				$html->find($element['name'], 0)->innertext = $$element['variable'] . $html->find($element['name'], 0)->innertext;
-			} else if ($html->find('div[id=' . $element['name'] . ']')) {
-				$html->find('div[id=' . $element['name'] . ']', 0)->innertext = $$element['variable'] . $html->find('div[id=' . $element['name'] . ']', 0)->innertext;
+		} else {
+			// No valid replacement was found
+			echo 'There was an error in the ini file for the template; "' . $elementName . '" did not have a value to be filled with.<br>';
+		}
+		if (isset($fillContent)) {
+			// We have content to fill, try and find the element
+			if ($html->find($elementName)) {
+				// Element is a default element (e.g. <title>, <header> or <nav>)
+				$html->find($elementName, 0)->innertext = $fillContent;
+			} else if ($html->find('div[id=' . $elementName . ']')) {
+				// Element has been specified via its id
+				$html->find('div[id=' . $elementName . ']', 0)->innertext = $fillContent;
 			} else {
-				echo 'Error: ' . $element['name'] . ' not found as a div or an element<br>';
+				echo 'There was an error in the ini file for the template; "' . $elementName . '" could not be found in the HTML file.<br>';
 			}
 		}
 	} else {
-		echo 'Variable ' . $element['variable'] . ' could not be found. Please check your elements.ini file.<br>';
+		echo 'There was an error in the ini file for the template: An element did not have an "element" value. Please check your ini file<br>';
 	}
 }
 // Save and display the HTML

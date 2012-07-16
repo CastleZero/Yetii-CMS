@@ -9,8 +9,6 @@ RewriteCond %{SCRIPT_FILENAME} !-f
 RewriteCond %{SCRIPT_FILENAME}.php -f
 RewriteRule ^(.*)$ engine.php?page=$1.php [QSA,L]
 
-# If the requested file is a php or HTML file
-#RewriteCond %{REQUEST_URI} \.(php|html)$
 # If the requested file is a HTML or a PHP file
 RewriteCond %{SCRIPT_FILENAME} \.(php|html)$
 # ... and the URI is not a directory
@@ -18,5 +16,3 @@ RewriteCond %{REQUEST_URI} !-d
 # Rewrite it to the engine
 RewriteRule ^(.*)$ engine.php?page=$1 [QSA,L]
 </IfModule>
-
-
