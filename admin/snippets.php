@@ -32,15 +32,15 @@ if (count($snippets) > 0) {
 				}
 				?>
 				<form method="POST">
-					<textarea name="snippetCode" rows="12" cols="200"><?php echo $snippetCode; ?></textarea><br>
+					<?php CreateEditor($snippetCode, 'snippetCode'); ?>
 					<input type="submit" value="Save Snippet">
 				</form>
-				<?
+				<?php
 			} else {
-				echo 'Snippet is invalid; ' . $valid . '<br>';
+				echo 'Snippet is invalid: "' . $valid . '"<br>';
 			}
 		} else {
-			echo 'Snippet does not exists. Please <a href="/admin/snippets">choose another snippet</a>.<br>';
+			echo 'Snippet does not exists. Please <a href="/admin/snippets.php">choose another snippet</a>.<br>';
 		}
 	} else {
 		// Not editing a snippet, show them all
@@ -70,6 +70,6 @@ if (count($snippets) > 0) {
 		<?php
 	}
 } else {
-	echo 'No snippets were found. Why not <a href="/admin/addsnippet.php">add one</a>?<br>';
+	echo 'No snippets were found. Why not <a href="/admin/newsnippet.php">create a new one</a>?<br>';
 }
 ?>

@@ -1,4 +1,2 @@
 *.log
 config.inc.php
-template.php
-json.php

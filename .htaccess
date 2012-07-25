@@ -4,15 +4,19 @@ ErrorDocument 404 /404.html
 <IfModule mod_rewrite.c>
 RewriteEngine On
 
-#If the URL does not exist, but the URL+.php exists, then append the .php extension to it
+# Rule for if the requested filename does not exist, but the filename+.php exists, then append the .php extension to it
 RewriteCond %{SCRIPT_FILENAME} !-f
 RewriteCond %{SCRIPT_FILENAME}.php -f
+# Rewrite it to the engine
 RewriteRule ^(.*)$ engine.php?page=$1.php [QSA,L]
 
-# If the requested file is a HTML or a PHP file
-RewriteCond %{SCRIPT_FILENAME} \.(php|html)$
-# ... and the URI is not a directory
-RewriteCond %{REQUEST_URI} !-d
+# Rule to send all PHP and HMTL files to the engine
+RewriteCond %{REQUEST_URI} \.(php|html)$
+# Rewrite it to the engine
+RewriteRule ^(.*)$ engine.php?page=$1 [QSA,L]
+
+# Rule for redirecting pages that only exist in the database to the engine
+RewriteCond %{SCRIPT_FILENAME} !-f 
 # Rewrite it to the engine
 RewriteRule ^(.*)$ engine.php?page=$1 [QSA,L]
 </IfModule>

@@ -46,7 +46,7 @@ if (isset($_POST['email']) || isset($_POST['password'])) {
 		}
 		if ($authLevel === false) {
 			// Credentials were correct but the account has problems
-			$error = array('message'=>'Incorrect email/password combination');
+			$error = array('message'=>'Incorrect email/password combination.');
 			array_push($errors, $error);
 		} else {
 			// Credentials were correct

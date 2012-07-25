@@ -195,32 +195,30 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 						$checkedReplaceValue = false;
 					}
 					// Create all the default elements
-					$availableElements = array(
-						'pageTitle' => 'Title (HTML Head)',
-						'header' => 'Header',
-						'navigation' => 'Navigation',
-						'pageContents' => 'Page Contents',
-						'footer' => 'Footer');
+					$availableVariables = array(
+						'pageTitle' => 'Page Title',
+						'pageContents' => 'Page Contents');
 					echo $element;
 					?>
 					:<select name="<?php echo $element; ?>_element">
 						<option value="none">None</option>
 						<option value="none" disabled="disabled">Variables</option>
 						<?php
-						foreach ($availableElements as $value => $displayName) {
-							echo '<option value="' . $value . '"';
-							if ($value == $checkedElementValue) echo 'selected="selected"';
+						foreach ($availableVariables as $variable => $displayName) {
+							echo '<option value="' . $variable . '"';
+							if ($variable == $checkedElementValue) echo 'selected="selected"';
 							echo '>' . $displayName . '</option>';
 						}
 						$snippets = GetSnippets();
 						if (count($snippets) > 0) {
 							echo '<option value="none" disabled="disabled">Snippets</option>';
 							foreach ($snippets as $snippet) {
-								$value = $snippet['value'];
-								$displayName = $snippet['displayName'];
-								echo '<option value="' . $value . '"';
-								if ($value == $checkedElementValue) echo 'selected="selected"';
-								echo '>' . $displayName . '</option>';
+								if ($snippet['valid'] === true) {
+									$name = $snippet['name'];
+									echo '<option value="snippet_' . $name . '"';
+									if ('snippet_' . $name == $checkedElementValue) echo ' selected="selected" ';
+									echo '>' . $name . '</option>';
+								}
 							}
 						}
 						?>
@@ -242,17 +240,23 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 			if (isset($_POST['createPreview'])) {
 				// The "create preview" button has been pressed and the user is not yet finished with editing the template
 				// Create the ini file with the current variables
-				$templateOptionsArray = array('variables', 'snippets');
-				$snippets = GetSnippets();
+				$templateOptionsArray = array();
 				foreach ($elements as $element) {
+					// Loop through each of the available elements and see if they have been checked
 					if ($_POST[$element . '_element'] != 'none') {
-						var_dump($element);
-						var_dump($snippets);
-						if (array_key_exists($element, $snippets)) {
-							echo 'You chose a snippet<br>';
+						// A value has been select
+						$fillContent = $_POST[$element . '_element'];
+						$replace = $_POST[$element . '_replace'];
+						if (substr($fillContent, 0, 8) == 'snippet_') {
+							// Element is being filled by a snippet
+							$snippet = substr($fillContent, 8);
+							$section = array('element' => $element, 'snippet' => $snippet, 'replace' => $replace);
+							array_push($templateOptionsArray, $section);
+						} else {
+							// Element is being filled by a variable
+							$section = array('element' => $element, 'variable' => $fillContent, 'replace' => $replace);
+							array_push($templateOptionsArray, $section);
 						}
-						$section = array('name' => $element, 'variable' => $_POST[$element . '_element'], 'replace' => $_POST[$element . '_replace']);
-						array_push($templateOptionsArray, $section);
 					}
 				}
 				if (count($templateOptionsArray) > 0) {

@@ -3,24 +3,34 @@ $title = 'Admin Area';
 $requiredAuth = 3;
 ?>
 <ul>
-	<a href="addnewtemplate">
+	<a href="links.php">
 		<li>
-			Add New Template
+			Links
 		</li>
 	</a>
-	<a href="pages">
+	<a href="pages.php">
 		<li>
 			Pages
 		</li>
 	</a>
-	<a href="settings">
+	<a href="settings.php">
 		<li>
 			Settings
 		</li>
 	</a>
-	<a href="snippets">
+	<a href="snippets.php">
 		<li>
-			Snippets
+			View/Edit Snippets
+		</li>
+	</a>
+	<a href="addsnippet.php">
+		<li>
+			Add New Snippet
+		</li>
+	</a>
+	<a href="addnewtemplate.php">
+		<li>
+			Add New Template
 		</li>
 	</a>
 </ul>

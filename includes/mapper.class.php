@@ -1,16 +1,16 @@
 <?php
 
 class Mapper {
-	const QUERY_GET_PAGE = "SELECT page_id, page_type, page_title, page_variables FROM pages WHERE page_url = ?";
-	const QUERY_GET_PAGE_BY_ID = "SELECT page_url, page_type, page_title, page_variables FROM pages WHERE page_id = ?";
-	const QUERY_GET_PAGES = "SELECT page_id, page_url, page_type, page_title, page_variables FROM pages";
+	const QUERY_GET_PAGE = "SELECT page_url, page_variables FROM pages WHERE page_url = ?";
+	const QUERY_GET_PAGES = "SELECT page_url, page_variables FROM pages";
 	const QUERY_GET_SETTINGS = "SELECT website_name, footer_text, template FROM settings LIMIT 0, 1";
-	const QUERY_GET_LINKS = "SELECT name, url, title FROM links ORDER BY link_id ASC";
+	const QUERY_GET_LINKS = "SELECT name, url, title, `order` FROM links ORDER BY `order` ASC";
+	const QUERY_ADD_LINK = "INSERT INTO links (name, url, title, `order`) VALUES (?, ?, ?, ?)";
 	const QUERY_GET_USER_INFORMATION = "SELECT email, password, display_name, auth_level FROM users WHERE user_id = ?";
 	const QUERY_CHECK_USER_EMAIL = "SELECT salt FROM users WHERE email = ?";
 	const QUERY_CHECK_USER_INFORMATION = "SELECT user_id, auth_level, display_name FROM users WHERE email = ? AND password = ?";
-	const QUERY_UPDATE_PAGE = "UPDATE pages SET page_url = ?, page_title = ?, page_type = ?, page_variables = ? WHERE page_id = ?";
-	const QUERY_ADD_NEW_PAGE = "INSERT INTO pages (page_url, page_title, page_type, page_variables) VALUES (?, ?, ?, ?)";
+	const QUERY_UPDATE_PAGE = "UPDATE pages SET page_url = ?, page_variables = ? WHERE page_url = ?";
+	const QUERY_ADD_NEW_PAGE = "INSERT INTO pages (page_url, page_variables) VALUES (?, ?)";
 	protected $dbh;
 	
 	public function __construct() {
@@ -25,28 +25,6 @@ class Mapper {
 			$stmt->execute(array($pageURL));
 			$result = $stmt->fetch(PDO::FETCH_ASSOC);
 			$valuesArray = array(
-								'pageId' => $result['page_id'],
-								'pageType' => $result['page_type'],
-								'pageTitle' => $result['page_title'],
-								'pageVariables' => $result['page_variables']
-								);
-			return $valuesArray;
-		} else {
-			return false;
-		}
-	}
-
-	public function GetPageContentById($pageId) {
-		$stmt = $this->dbh->prepare(self::QUERY_GET_PAGE_BY_ID);
-		$stmt->execute(array($pageId));
-		if ($stmt->fetchColumn() !== false) {
-			$stmt = $this->dbh->prepare(self::QUERY_GET_PAGE_BY_ID);
-			$stmt->execute(array($pageId));
-			$result = $stmt->fetch(PDO::FETCH_ASSOC);
-			$valuesArray = array(
-								'pageURL' => $result['page_url'],
-								'pageType' => $result['page_type'],
-								'pageTitle' => $result['page_title'],
 								'pageVariables' => $result['page_variables']
 								);
 			return $valuesArray;
@@ -99,6 +77,23 @@ class Mapper {
 		}
 	}
 
+	public function SaveLinks($links) {
+		$stmt = $this->dbh->prepare('TRUNCATE links');
+		$stmt->execute();
+		foreach ($links as $link) {
+			$this->AddLink($link);
+		}
+	}
+
+	public function AddLink($link) {
+		$stmt = $this->dbh->prepare(self::QUERY_ADD_LINK);
+		if ($stmt->execute(array($link['name'], $link['url'], $link['title'], $link['order']))) {
+			return true;
+		} else {
+			var_dump($this->dbh->errorInfo());
+		}
+	}
+
 	public function GetUsersAuth($id) {
 		$stmt = $this->dbh->prepare(self::QUERY_GET_USER_INFORMATION);
 		$stmt->execute(array($id));
@@ -142,18 +137,18 @@ class Mapper {
 		}
 	}
 
-	public function UpdatePage($pageURL, $pageTitle, $pageType, $pageVariables, $pageId) {
+	public function UpdatePage($newPageURL, $currentPageURL, $pageVariables) {
 		$stmt = $this->dbh->prepare(self::QUERY_UPDATE_PAGE);
-		if ($stmt->execute(array($pageURL, $pageTitle, $pageType, $pageVariables, $pageId))) {
+		if ($stmt->execute(array($newPageURL, $pageVariables, $currentPageURL))) {
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	public function AddNewPage($pageURL, $pageTitle, $pageType, $pageVariables) {
+	public function AddNewPage($pageURL, $pageVariables) {
 		$stmt = $this->dbh->prepare(self::QUERY_ADD_NEW_PAGE);
-		if ($stmt->execute(array($pageURL, $pageTitle, $pageType, $pageVariables))) {
+		if ($stmt->execute(array($pageURL, $pageVariables))) {
 			return true;
 		} else {
 			return false;
