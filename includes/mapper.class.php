@@ -1,16 +1,17 @@
 <?php
 
 class Mapper {
-	const QUERY_GET_PAGE = "SELECT page_url, page_variables FROM pages WHERE page_url = ?";
+	const QUERY_GET_PAGE = "SELECT required_auth, page_variables, page_title, page_type FROM pages WHERE page_url = ?";
 	const QUERY_GET_PAGES = "SELECT page_url, page_variables FROM pages";
-	const QUERY_GET_SETTINGS = "SELECT website_name, footer_text, template FROM settings LIMIT 0, 1";
-	const QUERY_GET_LINKS = "SELECT name, url, title, `order` FROM links ORDER BY `order` ASC";
-	const QUERY_ADD_LINK = "INSERT INTO links (name, url, title, `order`) VALUES (?, ?, ?, ?)";
+	const QUERY_GET_SNIPPET_VARIABLES = "SELECT variables FROM snippets WHERE snippet_name = ?";
+	const QUERY_GET_SETTINGS = "SELECT website_name, template FROM settings LIMIT 0, 1";
+	const QUERY_GET_LINKS = "SELECT name, url, title, `order`, required_auth FROM links ORDER BY `order` ASC";
+	const QUERY_ADD_LINK = "INSERT INTO links (name, url, title, `order`, required_auth) VALUES (?, ?, ?, ?, ?)";
 	const QUERY_GET_USER_INFORMATION = "SELECT email, password, display_name, auth_level FROM users WHERE user_id = ?";
 	const QUERY_CHECK_USER_EMAIL = "SELECT salt FROM users WHERE email = ?";
 	const QUERY_CHECK_USER_INFORMATION = "SELECT user_id, auth_level, display_name FROM users WHERE email = ? AND password = ?";
-	const QUERY_UPDATE_PAGE = "UPDATE pages SET page_url = ?, page_variables = ? WHERE page_url = ?";
-	const QUERY_ADD_NEW_PAGE = "INSERT INTO pages (page_url, page_variables) VALUES (?, ?)";
+	const QUERY_UPDATE_PAGE = "UPDATE pages SET page_url = ?, page_variables = ?, page_title = ?, required_auth = ? WHERE page_url = ?";
+	const QUERY_ADD_NEW_PAGE = "INSERT INTO pages (page_url, page_title, page_type, required_auth, page_variables) VALUES (?, ?, ?, ? ,?)";
 	protected $dbh;
 	
 	public function __construct() {
@@ -25,9 +26,26 @@ class Mapper {
 			$stmt->execute(array($pageURL));
 			$result = $stmt->fetch(PDO::FETCH_ASSOC);
 			$valuesArray = array(
-								'pageVariables' => $result['page_variables']
+								'storedVariables' => $result['page_variables'],
+								'requiredAuth' => $result['required_auth'],
+								'pageTitle' => $result['page_title'],
+								'pageType' => $result['page_type']
 								);
 			return $valuesArray;
+		} else {
+			return false;
+		}
+	}
+
+	public function GetSnippetVariables($snippet) {
+		$stmt = $this->dbh->prepare(self::QUERY_GET_SNIPPET_VARIABLES);
+		$stmt->execute(array($snippet));
+		if ($stmt->fetchColumn() !== false) {
+			$stmt = $this->dbh->prepare(self::QUERY_GET_SNIPPET_VARIABLES);
+			$stmt->execute(array($snippet));
+			$result = $stmt->fetch(PDO::FETCH_ASSOC);
+			$result = json_decode($result['variables'], true);
+			return $result;
 		} else {
 			return false;
 		}
@@ -55,7 +73,6 @@ class Mapper {
 			$result = $stmt->fetch(PDO::FETCH_ASSOC);
 			$settingsArray = array(
 								'websiteName' => $result['website_name'],
-								'footerText' => $result['footer_text'],
 								'template' => $result['template']
 								);
 			return $settingsArray;
@@ -87,7 +104,7 @@ class Mapper {
 
 	public function AddLink($link) {
 		$stmt = $this->dbh->prepare(self::QUERY_ADD_LINK);
-		if ($stmt->execute(array($link['name'], $link['url'], $link['title'], $link['order']))) {
+		if ($stmt->execute(array($link['name'], $link['url'], $link['title'], $link['order'], $link['required_auth']))) {
 			return true;
 		} else {
 			var_dump($this->dbh->errorInfo());
@@ -117,6 +134,7 @@ class Mapper {
 			$result = $stmt->fetch(PDO::FETCH_ASSOC);
 			// Salt and hash the password
 			$password = crypt($password, '$2a$10$' . $result['salt']);
+			var_dump($password);
 			$stmt = $this->dbh->prepare(self::QUERY_CHECK_USER_INFORMATION);
 			$stmt->execute(array($email, $password));
 			if ($stmt->fetchColumn() !== false) {
@@ -137,18 +155,18 @@ class Mapper {
 		}
 	}
 
-	public function UpdatePage($newPageURL, $currentPageURL, $pageVariables) {
+	public function UpdatePage($newPageURL, $currentPageURL, $pageTitle, $requiredAuth, $pageVariables) {
 		$stmt = $this->dbh->prepare(self::QUERY_UPDATE_PAGE);
-		if ($stmt->execute(array($newPageURL, $pageVariables, $currentPageURL))) {
+		if ($stmt->execute(array($newPageURL, $pageVariables, $pageTitle, $requiredAuth, $currentPageURL))) {
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	public function AddNewPage($pageURL, $pageVariables) {
+	public function AddNewPage($pageURL, $pageTitle, $pageType, $pageAuth, $pageVariables) {
 		$stmt = $this->dbh->prepare(self::QUERY_ADD_NEW_PAGE);
-		if ($stmt->execute(array($pageURL, $pageVariables))) {
+		if ($stmt->execute(array($pageURL, $pageTitle, $pageType, $pageAuth, $pageVariables))) {
 			return true;
 		} else {
 			return false;

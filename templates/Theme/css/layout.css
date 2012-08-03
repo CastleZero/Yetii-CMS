@@ -2,10 +2,10 @@
 Large screens (e.g. PC monitors). Show one large column and (optionally) 1 side column
 -------------------------------------------------- */
 
-#pagecontainer {
+#pageContainer {
 	padding: 1.618em;
 	margin: 0 auto; 
-	max-width: 80em;
+	max-width: 100em;
 }
 
 #usermenu, #navigation {

@@ -61,6 +61,7 @@ function GetPage($pageURL, $parsed = true) {
         // We are at the root address
         $pageURL = 'index.php';
     }
+    $pageVariables = array();
     // Get the page contents by first checking if the requested file is a file. If it is not, check if the file is in the database. If it is neither, return a 404 error.
     if (file_exists($pageURL) || file_exists($pageURL . '.php')) {
         $pageSavedIn = 'file';
@@ -68,59 +69,72 @@ function GetPage($pageURL, $parsed = true) {
             $pageURL = $pageURL . '.php';
         }
         // File exists on the system, load it
-        $pageContents = file_get_contents($pageURL);
-        if (json_decode($pageContents) !== NULL) {
-            // Page has variables to load
-            if ($parsed) {
-                $pageVariables = json_decode($pageContents, true);
-                // Extract the page variables array into variables
-                extract($pageVariables);
-                // Get the page contents by using the page layout
-                ob_start();
-                include(PAGESFOLDER . $pageType . '/index.php');
-                $pageContents = ob_get_clean();
-            } else {
-                $pageContents = json_decode($pageContents, true);
-            }
+        $fileContents = file_get_contents($pageURL);
+        if (json_decode($fileContents) !== NULL) {
+            // Page is a custom page type and has variables in the page to be loaded (not currently supported)
+            // if ($parsed) {
+            //     $fileVariables = json_decode($fileContents, true);
+            //     // Extract the page variables array into variables
+            //     extract($fileVariables);
+            //     // Get the page contents by using the page layout
+            //     ob_start();
+            //     include(PAGESFOLDER . $pageType . '/index.php');
+            //     $pageVariables['PageContents'] = ob_get_clean();
+            //     if (isset($pageName)) {
+            //         $pageVariables['pageName'] = $pageName;
+            //     } else {
+            //         $pageVariables['pageName'] = null;
+            //     }
+            // } else {
+            //     $pageVariables['pageContents'] = json_decode($fileContents, true);
+            // }
+            return false;
         } else {
             // Page is simply a file to load
             if ($parsed) {
                 ob_start();
                 include($pageURL);
-                $pageContents = ob_get_clean();
+                $pageVariables['pageContents'] = ob_get_clean();
+                if (isset($pageName)) {
+                    $pageVariables['pageTitle'] = $pageTitle;
+                } else {
+                    $pageVariables['pageTitle'] = null;
+                }
+                if (isset($requiredAuth)) {
+                    $pageVariables['requiredAuth'] = $requiredAuth;
+                } else {
+                    $pageVariables['requiredAuth'] = 0;
+                }
             } else {
-                $pageContents = json_decode($pageContents);
+                $fileVariables['pageContents'] = $fileContents;
             }
         }
     } else {
         // Check if the URL is available in the database
-        $pageSavedIn = 'database';
         $mapper = new Mapper();
-        if ($valuesArray = $mapper->GetPageContent($pageURL)) {
+        if ($databaseVariables = $mapper->GetPageContent($pageURL)) {
             // Page exists in the database
-            // Extract the returned array into variables
-            extract($valuesArray);
             // Decode the JSON encoded page variables
-            $pageVariables = json_decode($pageVariables, true);
-            // Extract the page variables array into variables
-            extract($pageVariables);
-            // Get the page contents by using the page layout
+            $databasePageVariables = json_decode($databaseVariables['storedVariables'], true);
             if ($parsed) {
+                // Extract the page variables array into variables
+                extract($databasePageVariables, EXTR_PREFIX_SAME, '');
                 ob_start();
-                include(PAGESFOLDER . $pageType . '/index.php');
-                $pageContents = ob_get_clean();
+                include(PAGESFOLDER . $databaseVariables['pageType'] . '/index.php');
+                $pageVariables['pageContents'] = ob_get_clean();
             } else {
-                $pageContents = $pageVariables;
+                $pageVariables['pageVariables'] = $databasePageVariables;
             }
+            $pageVariables['pageTitle'] = $databaseVariables['pageTitle'];
+            $pageVariables['requiredAuth'] = $databaseVariables['requiredAuth'];
+            $pageVariables['pageType'] = $databaseVariables['pageType'];
+            $pageVariables['pageSavedIn'] = 'database';
         } else {
-            $pageContents = false;
+            $pageVariables = false;
         }
         unset($mapper);
     }
-    if (is_array($pageContents)) {
-        $pageContents['pageSavedIn'] = $pageSavedIn;
-    }
-    return $pageContents;
+    return $pageVariables;
 }
 
 function write_ini_file($assoc_arr, $path, $has_sections=FALSE) { 
@@ -202,6 +216,15 @@ function GetSnippet($snippet) {
     if (is_dir($snippetLocation)) {
         // The snippets folder was provided, check for an index.php file
         if (is_file($snippetLocation . '/index.php')) {
+            if (is_file($snippetLocation . '/variables.ini')) {
+                $mapper = new Mapper();
+                if ($databaseVariables = $mapper->GetSnippetVariables($snippet)) {
+                    extract($databaseVariables);
+                } else {
+                    return 'There was an error loading the snippet "' . $snippet . '". The variables could not be loaded from the database yet a variables.ini file exists.<br>';
+                }
+                unset($mapper);
+            }
             ob_start();
             include($snippetLocation . '/index.php');
             return ob_get_clean();
@@ -210,6 +233,7 @@ function GetSnippet($snippet) {
             return 'No index.php file was present; snippet cannot be loaded.<br>';
         }
     } else if (is_file($snippetLocation)) {
+        // Snippet it just a file, load the file
         ob_start();
         include($snippetLocation);
         return ob_get_clean();
@@ -320,7 +344,7 @@ function DeleteDirectory($directory) {
 
 function CreateEditor($contents, $id = 'codeTextbox') {
     // Include the CKEditor class.
-    include_once "/includes/ckeditor/ckeditor.php";
+    include_once "ckeditor/ckeditor.php";
     // Create a class instance.
     $CKEditor = new CKEditor();
     // Path to the CKEditor directory, ideally use an absolute path instead of a relative dir.

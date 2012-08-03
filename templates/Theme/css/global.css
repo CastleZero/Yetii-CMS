@@ -123,7 +123,7 @@ dd {
 /* Addresses paddings set differently in IE6/7. */
 
 menu, ol, ul {
-    padding: 0 0 0 40px;
+    padding: 0;
 }
 
 /* Corrects list images handled incorrectly in IE7. */
@@ -207,10 +207,56 @@ a:active, a:focus {
 	outline: none;
 }
 
+/* --------------------------------------------------
+Facebook Like Box
+-------------------------------------------------- */
+
+/* Make the Facebook Like box responsive (fluid width)
+https://developers.facebook.com/docs/reference/plugins/like-box/ */
+
+/* This element holds injected scripts inside iframes that in 
+some cases may stretch layouts. So, we're just hiding it. */
+
+#fb-root {
+  display: none;
+}
+
+/* To fill the container and nothing else */
+
+.fb_iframe_widget, .fb_iframe_widget span, .fb_iframe_widget span iframe[style] {
+  width: 100% !important;
+}
 
 /* --------------------------------------------------
 Global Layout
 -------------------------------------------------- */
+
+/**
+ * For modern browsers
+ * 1. The space content is one way to avoid an Opera bug when the
+ *    contenteditable attribute is included anywhere else in the document.
+ *    Otherwise it causes space to appear at the top and bottom of elements
+ *    that are clearfixed.
+ * 2. The use of `table` rather than `block` is only necessary if using
+ *    `:before` to contain the top-margins of child elements.
+ */
+.clearfix:before,
+.clearfix:after {
+    content: " "; /* 1 */
+    display: table; /* 2 */
+}
+
+.clearfix:after {
+    clear: both;
+}
+
+/**
+ * For IE 6/7 only
+ * Include this rule to trigger hasLayout and contain floats.
+ */
+.clearfix {
+    *zoom: 1;
+}
 
 #holder {
 	min-height: 100%;
@@ -218,26 +264,63 @@ Global Layout
 }
 
 header {
-	min-height: 1em;
-	background: #EEE;
+	min-height: 5em;
 }
 
-#navigation li {
+#logo {
+    min-height: 3em;
+    float: left;
+    width: 50%;
+    padding-left: 5em;
+}
+
+#contactNumber {
+    min-height: 3em;
+    float: left;
+}
+
+nav {
+    min-height: 2em;
+    background-color: grey;
+}
+
+nav ul {
+    text-align: center;
+    overflow: hidden;
+}
+
+nav li {
 	display: inline;
+    float: left;
+    background-color: white;
+    border-radius: 0.5em;
 }
 
-#pagecontainer {
+/* Force a tags within list items to fill the entire li element and keep it valid HTML/CSS */
+nav li > a {
+    display: block;
+    padding: 0.1em 0;
+    color: inherit !important;
+    text-decoration: none;
+}
+
+#pageContainer {
 	padding-bottom: 4em !important; /* Force footer to be below all content */
 	/* overflow: hidden; */
 }
 
+#pageContents {
+    width: 98%;
+    padding: 0 1%;
+}
+
 footer {
-	left: 0;
+	/*left: 0;
 	right: 0;
 	bottom: 0;
 	clear: both;
 	height: 4em;
-	position: absolute;
+	position: absolute;*/
 	text-align: center;
 }
 
@@ -252,6 +335,26 @@ footer {
     border: 1px black solid;
     padding: 1px;
     margin: 1px;
+}
+
+/* 3 column layout */
+
+#leftColumn {
+    width: 28%;
+    float: left;
+    padding: 0 1%;
+}
+
+#centerColumn {
+    width: 48%;
+    float: left;
+    padding: 0 1%;
+}
+
+#rightColumn {
+    width: 18%;
+    float: left;
+    padding: 0 1%;
 }
 
 /* --------------------------------------------------
