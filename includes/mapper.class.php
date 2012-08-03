@@ -2,7 +2,7 @@
 
 class Mapper {
 	const QUERY_GET_PAGE = "SELECT required_auth, page_variables, page_title, page_type FROM pages WHERE page_url = ?";
-	const QUERY_GET_PAGES = "SELECT page_url, page_variables FROM pages";
+	const QUERY_GET_PAGES = "SELECT page_url FROM pages";
 	const QUERY_GET_SNIPPET_VARIABLES = "SELECT variables FROM snippets WHERE snippet_name = ?";
 	const QUERY_GET_SETTINGS = "SELECT website_name, template FROM settings LIMIT 0, 1";
 	const QUERY_GET_LINKS = "SELECT name, url, title, `order`, required_auth FROM links ORDER BY `order` ASC";
@@ -10,8 +10,9 @@ class Mapper {
 	const QUERY_GET_USER_INFORMATION = "SELECT email, password, display_name, auth_level FROM users WHERE user_id = ?";
 	const QUERY_CHECK_USER_EMAIL = "SELECT salt FROM users WHERE email = ?";
 	const QUERY_CHECK_USER_INFORMATION = "SELECT user_id, auth_level, display_name FROM users WHERE email = ? AND password = ?";
-	const QUERY_UPDATE_PAGE = "UPDATE pages SET page_url = ?, page_variables = ?, page_title = ?, required_auth = ? WHERE page_url = ?";
-	const QUERY_ADD_NEW_PAGE = "INSERT INTO pages (page_url, page_title, page_type, required_auth, page_variables) VALUES (?, ?, ?, ? ,?)";
+	const QUERY_UPDATE_PAGE = "UPDATE pages SET page_url = ? WHERE page_url = ?";
+	const QUERY_ADD_NEW_PAGE = "INSERT INTO pages (page_url) VALUES (?)";
+	const QUERY_DELETE_PAGE = "DELETE FROM pages WHERE page_url = ?";
 	protected $dbh;
 	
 	public function __construct() {
@@ -155,18 +156,27 @@ class Mapper {
 		}
 	}
 
-	public function UpdatePage($newPageURL, $currentPageURL, $pageTitle, $requiredAuth, $pageVariables) {
+	public function UpdatePage($oldPageURL, $newPageURL) {
 		$stmt = $this->dbh->prepare(self::QUERY_UPDATE_PAGE);
-		if ($stmt->execute(array($newPageURL, $pageVariables, $pageTitle, $requiredAuth, $currentPageURL))) {
+		if ($stmt->execute(array($newPageURL, $oldPageURL))) {
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	public function AddNewPage($pageURL, $pageTitle, $pageType, $pageAuth, $pageVariables) {
+	public function AddNewPage($pageURL) {
 		$stmt = $this->dbh->prepare(self::QUERY_ADD_NEW_PAGE);
-		if ($stmt->execute(array($pageURL, $pageTitle, $pageType, $pageAuth, $pageVariables))) {
+		if ($stmt->execute(array($pageURL))) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public function DeletePage($pageURL) {
+		$stmt = $this->dbh->prepare(self::QUERY_DELETE_PAGE);
+		if ($stmt->execute(array($pageURL))) {
 			return true;
 		} else {
 			return false;

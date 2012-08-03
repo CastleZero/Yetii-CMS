@@ -6,151 +6,93 @@ if (isset($_GET['pageURL'])) {
 	// Editing a page
 	$pageURL = $_GET['pageURL'];
 	$pageVariables = GetPage($pageURL, false); // Get the page variables (unparsed)
-	if ($pageVariables === false) {
+	$pageCode = $pageVariables['pageContents'];
+	if ($pageCode === false) {
 		echo 'Page URL is not a valid page URL.<br>';
 	} else {
-		$currentPageURL = $pageURL;
-		extract($pageVariables, EXTR_PREFIX_ALL, 'editingPage');
-		$variables = parse_ini_file(PAGESFOLDER . $editingPage_pageType . '/variables.ini', true);
 		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			// Save the page
-			$submittedVariables = array();
-			if (isset($_POST['editingPage_pageTitle']) && $_POST['editingPage_pageTitle'] != '') {
-				$editedPageTitle = $_POST['editingPage_pageTitle'];
-			} else {
-				$error = array('fieldId' => 'editingPage_pageTitle', 'message' => 'The page title cannot be empty');
-				array_push($errors, $error);
-			}
-			if (isset($_POST['editingPage_requiredAuth']) && $_POST['editingPage_requiredAuth'] != '') {
-				$editedRequiredAuth = $_POST['editingPage_requiredAuth'];
-			} else {
-				$error = array('fieldId' => 'editingPage_requiredAuth', 'message' => 'The required auth cannot be empty');
-				array_push($errors, $error);
-			}
-			$pageURL = $_POST['pageURL'];
-			if ($pageURL !== $currentPageURL) {
-				// Updating page URL
-				if (is_file($pageURL . '.php')) {
-					$error = array('fieldId' => 'newPageURL', 'message' => 'The chosen URL is already taken by a file. Please chose another name');
+			$pageCode = $_POST['pageCode'];
+			if ($pageURL !== $_POST['pageURL']) {
+				// Updating the pages URL
+				$newPageURL = $_POST['pageURL'];
+				if (is_file($newPageURL . '.php') || is_file($newPageURL)) {
+					$error = array('fieldId' => 'newPageURL', 'message' => 'The chosen URL is already taken by a file. Please chose another name.');
 					array_push($errors, $error);
-				} else if (GetPage($pageURL) !== false) {
-					$error = array('fieldId' => 'newPageURL', 'message' => 'The chosen URL is already taken by a page in the database. Please chose another name');
+				} else if (is_dir($newPageURL)) {
+					$error = array('fieldId' => 'newPageURL', 'message' => 'The chosen URL is already taken by a directory. To specify a file add ".php" to the end of the file name.');
 					array_push($errors, $error);
-				} else {
-					if ($editingPage_pageSavedIn == 'file') {
-						// Change the file name
-						/*** We should also check if there is a link to update anywhere! ***/
-						if (rename($currentPageURL . '.php', $pageURL . '.php')) {
-							echo 'Page name has been updated. You will need to <a href="/admin/pages.php?pageURL=' . $pageURL . '">reload the page with the new URL</a>.<br>';
-							return;
-						} else {
-							echo 'Error changing file name. There will be 2 versions of this file (old name and new name). Please try deleting the old name.<br>';
-						}
-					} else {
-						echo 'Page name has been updated. You will need to <a href="/admin/pages.php?pageURL=' . $pageURL . '">reload the page with the new URL</a>.<br>';
-						return;
-					}
-				}
-			}
-			foreach ($variables as $name => $variable) {
-				if (array_key_exists('required', $variable)) {
-					$required = $variable['required'];
-				} else {
-					$required = false;
-				}
-				if (isset($_POST[$name]) && $_POST[$name] != '') {
-					// We have a none empty variable
-					$submittedVariables[$name] = $_POST[$name];
-				} else {
-					// The variable is empty, check if it is required
-					if ($required === true) {
-						$error = array('fieldId' => 'newPageURL', 'message' => '"' . $name . '" is a required variable. Please enter a value and try again.');
-						array_push($errors, $error);
-					}
 				}
 			}
 			if (count($errors) > 0) {
 				showErrors($errors);
 			} else {
-				// We have all the variables we need, they have been stored, save them to the system
-				$JSONVariables = json_encode($submittedVariables);
-				if ($editingPage_pageSavedIn == 'database') {
-					$mapper = new Mapper();
-					if ($mapper->UpdatePage($pageURL, $currentPageURL, $editedPageTitle, $editedRequiredAuth, $JSONVariables)) {
-						echo 'Page saved.<br>';
+				if (isset($newPageURL)) {
+					// Changing URL
+					if (file_put_contents($newPageURL, $pageCode)) {
+						$mapper = new Mapper();
+						if (unlink($pageURL)) {
+							if ($mapper->UpdatePage($pageURL, $newPageURL)) {
+								echo 'Page has been saved and can now be <a href="/admin/pages.php?pageURL=' . $newPageURL . '">edited at using the new URL</a>. It has also been updated in the database.<br>';
+							} else {
+								echo 'The page has been saved but there was an error updating the database entry.<br>';
+							}
+							unset($mapper);
+						} else {
+							echo 'There was an error deleting the old file you. The new page can now be <a href="/admin/pages.php?pageURL=' . $newPageURL . '">edited at using the new URL</a>.<br>';
+						}
+						return;
 					} else {
-						echo 'Page could not be saved.<br>';
+						echo 'There was an error saving the new file. Please try again.<br>';
 					}
-					unset($mapper);
-				} else if ($editingPage_pageSavedIn == 'file') {
-					if (file_put_contents($pageURL . '.php', $JSONVariables)) {
-						echo 'Page saved.<br>';
+				} else {
+					if (!file_put_contents($pageURL, $pageCode)) {
+						echo 'Error saving file. Please try again.<br>';
 					} else {
-						echo 'Page could not be saved.<br>';
+						echo 'Page updated!<br>';
 					}
 				}
 			}
 		}
 		?>
 		<form method="POST">
-			Page Saved In: <?php echo $editingPage_pageSavedIn; ?><br>
-			Page Title: <input type="text" name="editingPage_pageTitle" id="pageTitle" <?php if (isset($editingPage_pageTitle)) echo 'value="' . $editingPage_pageTitle . '"'; ?> required="required" ><br>
-			Page URL: <input type="text" name="pageURL" id="pageURL" <?php if (isset($pageURL)) echo 'value="' . $pageURL . '"'; ?> required="required"><br>
-			Required Auth: <input type="number" name="editingPage_requiredAuth" id="requiredAuth" <?php if (isset($editingPage_requiredAuth)) echo 'value="' . $editingPage_requiredAuth . '"'; else echo 'value="0"'; ?> required="required"><br>
-			<?php
-			foreach ($variables as $name => $variable) {
-				if (array_key_exists('friendlyName', $variable)) {
-					$friendlyName = $variable['friendlyName'];
-				} else {
-					$friendlyName = ucwords($name);
-				}
-				if (array_key_exists('type', $variable)) {
-					$type = $variable['type'];
-				} else {
-					$type = 'text';
-				}
-				if (array_key_exists('required', $variable)) {
-					$required = $variable['required'];
-				} else {
-					$required = false;
-				}
-				if (array_key_exists('description', $variable)) {
-					$description = $variable['description'];
-				} else {
-					$description = false;
-				}
-				if (isset($_POST[$name])) {
-					$value = $_POST[$name];
-				} else if (array_key_exists($name, $editingPage_pageVariables)) {
-					$value = $editingPage_pageVariables[$name];
-				} else {
-					$value = '';
-				}
-				echo $friendlyName . ': ';
-				switch ($type) {
-					case 'textarea':
-						?>
-						<textarea name="<?php echo $name; ?>" id="<?php echo $name; ?>" <?php if ($required === true) echo 'required="required"'; ?>><?php echo $value; ?></textarea>
-						<?php
-						break;
-					case 'wysiwyg':
-						CreateEditor($value, $name);
-						break;
-					default:
-						?>
-						<input type="<?php echo $type; ?>" name="<?php echo $name; ?>" id="<?php echo $name; ?>" <?php if ($required === true) echo 'required="required"'; ?> value="<?php echo $value; ?>">
-						<?php
-						break;
-				}
-				echo '<br>';
-			}
-			?>
+			Page URL: <input type="text" name="pageURL" id="pageURL" value="<?php echo $pageURL; ?>" required="required"><br>
+			<?php CreateEditor($pageCode, 'pageCode'); ?>
 			<input type="submit" value="Save Page">
 		</form>
 		<?php
 	}
+} else if (isset($_GET['deletePageURL'])) {
+	$pageURL = $_GET['deletePageURL'];
+	if (GetPage($pageURL, false)) {
+		if (isset($_GET['confirmDelete']) && $_GET['confirmDelete']) {
+			// Delete the page
+			if (unlink($pageURL)) {
+				echo 'File has been deleted.<br>';
+				$mapper = new Mapper();
+				if ($mapper->DeletePage($pageURL)) {
+					echo 'Page has been removed from the database.';
+				} else {
+					echo 'Page was not removed from the database.';
+				}
+			} else {
+				echo 'There was an error deleting the file, please try again.';
+			}
+		} else {
+			// Ask for confirmation
+			?>
+			<form method="GET">
+				<input type="hidden" name="deletePageURL" value="<?php echo $pageURL; ?>">
+				<input type="hidden" name="confirmDelete" value="true">
+				<input type="submit" value="Confirm Delete">
+			</form>
+			<?php
+		}
+	} else {
+		echo 'Provided page URL is not valid.';
+	}
 } else {
-	// Not editing or creating a new page, display all pages and the option to create a new page
+	// Not editing a new page, display all pages and the option to create a new page
 	?>
 	All URLs are relative to the websites root address (do not add a "/" to the start).<br>
 	<a href="/admin/newpage.php"><input type="button" value="Create New Page"></a>
@@ -169,19 +111,21 @@ if (isset($_GET['pageURL'])) {
 			<th>Page URL</th>
 			<th>Valid Page?</th>
 			<th>Edit Page</th>
+			<th>Delete Page</th>
 			<?php
 			foreach ($pages as $page) {
-				$pageURL = $page['url'];
-				if (is_file($pageURL)) {
+				$pageURL = $page['page_url'];
+				if (GetPage($pageURL, true)) {
 					$validPage = 'Yes';
 				} else {
-					$validPage = 'No; No file was found for the URL';
+					$validPage = 'No';
 				}
 				?>
 				<tr>
 					<td><?php echo $pageURL; ?></td>
 					<td><?php echo $validPage; ?></td>
 					<td><a href="?pageURL=<?php echo $pageURL; ?>">Edit This Page</a></td>
+					<td><a href="?deletePageURL=<?php echo $pageURL; ?>">Delete This Page</a></td>
 				</tr>
 			<?php
 			}

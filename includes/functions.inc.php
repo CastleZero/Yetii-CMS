@@ -43,10 +43,10 @@ function UsersAuth() {
 * 
 *
 * @author Joseph Duffy
-* @version 1.0
+* @version 1.1
 * @var pageURL string The URL of the page to get
 * @var parsed bool Whether or not the page should be parsed, or returned in its original form
-* @return mixed
+* @return array
 */
 
 function GetPage($pageURL, $parsed = true) {
@@ -70,69 +70,25 @@ function GetPage($pageURL, $parsed = true) {
         }
         // File exists on the system, load it
         $fileContents = file_get_contents($pageURL);
-        if (json_decode($fileContents) !== NULL) {
-            // Page is a custom page type and has variables in the page to be loaded (not currently supported)
-            // if ($parsed) {
-            //     $fileVariables = json_decode($fileContents, true);
-            //     // Extract the page variables array into variables
-            //     extract($fileVariables);
-            //     // Get the page contents by using the page layout
-            //     ob_start();
-            //     include(PAGESFOLDER . $pageType . '/index.php');
-            //     $pageVariables['PageContents'] = ob_get_clean();
-            //     if (isset($pageName)) {
-            //         $pageVariables['pageName'] = $pageName;
-            //     } else {
-            //         $pageVariables['pageName'] = null;
-            //     }
-            // } else {
-            //     $pageVariables['pageContents'] = json_decode($fileContents, true);
-            // }
-            return false;
-        } else {
-            // Page is simply a file to load
-            if ($parsed) {
-                ob_start();
-                include($pageURL);
-                $pageVariables['pageContents'] = ob_get_clean();
-                if (isset($pageName)) {
-                    $pageVariables['pageTitle'] = $pageTitle;
-                } else {
-                    $pageVariables['pageTitle'] = null;
-                }
-                if (isset($requiredAuth)) {
-                    $pageVariables['requiredAuth'] = $requiredAuth;
-                } else {
-                    $pageVariables['requiredAuth'] = 0;
-                }
+        if ($parsed) {
+            ob_start();
+            include($pageURL);
+            $pageVariables['pageContents'] = ob_get_clean();
+            if (isset($pageName)) {
+                $pageVariables['pageTitle'] = $pageTitle;
             } else {
-                $fileVariables['pageContents'] = $fileContents;
+                $pageVariables['pageTitle'] = null;
             }
+            if (isset($requiredAuth)) {
+                $pageVariables['requiredAuth'] = $requiredAuth;
+            } else {
+                $pageVariables['requiredAuth'] = 0;
+            }
+        } else {
+            $pageVariables['pageContents'] = $fileContents;
         }
     } else {
-        // Check if the URL is available in the database
-        $mapper = new Mapper();
-        if ($databaseVariables = $mapper->GetPageContent($pageURL)) {
-            // Page exists in the database
-            // Decode the JSON encoded page variables
-            $databasePageVariables = json_decode($databaseVariables['storedVariables'], true);
-            if ($parsed) {
-                // Extract the page variables array into variables
-                extract($databasePageVariables, EXTR_PREFIX_SAME, '');
-                ob_start();
-                include(PAGESFOLDER . $databaseVariables['pageType'] . '/index.php');
-                $pageVariables['pageContents'] = ob_get_clean();
-            } else {
-                $pageVariables['pageVariables'] = $databasePageVariables;
-            }
-            $pageVariables['pageTitle'] = $databaseVariables['pageTitle'];
-            $pageVariables['requiredAuth'] = $databaseVariables['requiredAuth'];
-            $pageVariables['pageType'] = $databaseVariables['pageType'];
-            $pageVariables['pageSavedIn'] = 'database';
-        } else {
-            $pageVariables = false;
-        }
-        unset($mapper);
+        $pageVariables = false;
     }
     return $pageVariables;
 }

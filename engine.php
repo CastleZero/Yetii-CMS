@@ -69,34 +69,16 @@ if (is_dir($pageName)) {
     // We are at the root address
     $pageName = 'index';
 }
-$templateFile = $pageName;
-var_dump($templateFile);
-
-// if (array_key_exists('dirname', $pathInfo)) {
-// 	if ($pathInfo['dirname'] == '.') {
-// 		// Either top of directory (e.g. index.php) or not really a directory
-// 		if (is_dir($pathInfo['dirname'])) {
-// 			// Dealing with a directory
-// 			if (array_key_exists('filename', $pathInfo)) {
-// 				$templateFile = $pathInfo['dirname'] . '/' . $pathInfo['filename'];
-// 			} else {
-// 				$templateFile = $pathInfo['dirname'] . '/index.php';
-// 			}
-// 		} else {
-// 			// Not a directory
-// 		}
-// 	}
-// if (array_key_exists('extension', $pathInfo)) {
-// 	// Getting a file
-// 	$templateFile = $pathInfo['dirname'] . '/' . $pathInfo['filename'];
-// } else {
-// 	// Getting a folder
-// 	if (array_key_exists('dirname', $pathInfo)) {
-// 		$templateFile = $pathInfo['dirname'] . '/index';
-// 	} else {
-// 		$templateFile = 'index';
-// 	}
-// }
+if (array_key_exists('extension', pathinfo($pageName))) {
+	$pageFileInfo = pathinfo($pageName);
+	if ($pageFileInfo['dirname'] == '.') {
+		$templateFile = $pageFileInfo['filename'];
+	} else {
+		$templateFile = $pageFileInfo['dirname'] . '/' . $pageFileInfo['filename'];
+	}
+} else {
+	$templateFile = $pageName;
+}
 if (isset($_GET['template'])) {
 	// We want a custom template
 	$templateFolder = $_GET['template']; 

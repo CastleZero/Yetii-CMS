@@ -50,6 +50,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 					$pageCode;
 		if (file_put_contents($newPageURL, $pageCode)) {
 			echo 'Page saved! You can now <a href="/admin/pages.php?pageURL=' . $newPageURL . '">edit the file</a>.<br>';
+			if ($saveToDatabase) {
+				$mapper = new Mapper();
+				if ($mapper->AddNewPage($newPageURL)) {
+					echo 'Page was also added to database.<br>';
+				} else {
+					echo 'There was an error adding the file to the database.<br>';
+				}
+			}
 			return;
 		} else {
 			echo 'There was error saving the file. Please try again.<br>';

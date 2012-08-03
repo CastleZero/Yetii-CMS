@@ -1,4 +1,7 @@
 <?php
 $pageTitle = 'Home';
 ?>
-Homepage Content
+<p>
+	Homepage Content</p>
+<p>
+	New Line</p>
