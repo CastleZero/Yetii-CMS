@@ -2,52 +2,71 @@
 $title = 'Snippets';
 $requiredAuth = 3;
 $snippets = GetSnippets();
-if (count($snippets) > 0) {
-	// We have at least 1 snippet
-	if (isset($_GET['snippet'])) {
-		// Editing a snippet
-		$snippet = $_GET['snippet'];
-		foreach ($snippets as $availableSnippet) {
-			if ($availableSnippet['name'] == $snippet) {
-				// We have found the requested snippet in the list of available snippets
-				$valid = $availableSnippet['valid'];
-			}
-		}
-		if (isset($valid)) {
-			// Snippet exists
-			if ($valid === true) {
-				if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-					// Saving the snippet
-					$snippetCode = $_POST['snippetCode'];
-					if (file_put_contents(SNIPPETSFOLDER . $snippet . '/index.php', $snippetCode) === false) {
-						// Saving of file failed
-						echo 'There was an error saving the snippet. Please try again.<br>';
-					} else {
-						// File was saved
-						echo 'Snippet saved.<br>';
-					}
+if (isset($_GET['snippet'])) {
+	// Editing snippet
+	$snippet = $_GET['snippet'];
+	$snippet = GetSnippet($snippet, false);
+	if ($snippet !== false) {
+		$snippetLocation = $snippet['location'];
+		$snippetCode = $snippet['code'];
+		$snippetType = $snippet['type'];
+		if ($snippetType == 'static') {
+			if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+				// Save change to snippet
+				$snippetCode = $_POST['snippetCode'];
+				if (file_put_contents($snippetLocation, $snippetCode)) {
+					echo 'Snippet saved.<br>';
+				} else {
+					echo 'There was an error saving the snippet. Please try again.<br>';
 				}
-				if (!isset($snippetCode)) {
-					$snippetCode = file_get_contents(SNIPPETSFOLDER . $snippet . '/index.php');
+			}
+			?>
+			<form method="POST">
+				<?php CreateEditor($snippetCode, 'snippetCode'); ?>
+				<input type="submit" value="Save Changes">
+			</form>
+			<?php
+		} else {
+			$configFile = $snippet['configFile'];
+			$configVariables = parse_ini_file($configFile, true);
+			if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+				// Save changes to snippet
+				$newVariables = array();
+				foreach ($configVariables as $name => $variable) {
+					$snippetCode[$name] = $_POST[$name];
+				}
+				if (write_ini_file($snippetCode, $snippetLocation)) {
+					echo 'Snippet saved.<br>';
+				} else {
+					echo 'There was an error saving the snippet. Please try again.<br>';
+				}
+			}
+			?>
+			<form method="POST">
+				<?php
+				foreach ($configVariables as $name => $variable) {
+					$friendlyName = $variable['friendlyName'];
+					$required = $variable['required'];
+					$value = $snippetCode[$name];
+					echo $friendlyName;
+					?>
+					: <input type="text" name="<?php echo $name; ?>" value="<?php echo $value; ?>" <?php if ($required) echo 'required="required"'; ?>><br>
+					<?php
 				}
 				?>
-				<form method="POST">
-					<?php CreateEditor($snippetCode, 'snippetCode'); ?>
-					<input type="submit" value="Save Snippet">
-				</form>
-				<?php
-			} else {
-				echo 'Snippet is invalid: "' . $valid . '"<br>';
-			}
-		} else {
-			echo 'Snippet does not exists. Please <a href="/admin/snippets.php">choose another snippet</a>.<br>';
+				<input type="submit" value="Save Changes">
+			</form>
+			<?php
 		}
-	} else {
-		// Not editing a snippet, show them all
+	}
+} else {
+	if (count($snippets) > 0) {
+		// We have at least 1 snippet
 		?>
 		<table>
 			<th>Name</th>
 			<th>Valid</th>
+			<th>Dynamic</th>
 			<th>Edit</th>
 			<?php
 			foreach ($snippets as $snippet) {
@@ -61,6 +80,7 @@ if (count($snippets) > 0) {
 						echo 'No; ' . $snippet['valid'];
 					}
 					?></td>
+					<th><?php echo $snippet['dynamic'] == true ? 'Yes' : 'No'; ?>
 					<td><a href="?snippet=<?php echo $snippet['name']; ?>" title="Edit this snippet">Edit Snippet</a></td>
 				</tr>
 				<?php
@@ -68,8 +88,8 @@ if (count($snippets) > 0) {
 			?>
 		</table>
 		<?php
+	} else {
+		echo 'No snippets were found. Why not <a href="/admin/newsnippet.php">create a new one</a>?<br>';
 	}
-} else {
-	echo 'No snippets were found. Why not <a href="/admin/newsnippet.php">create a new one</a>?<br>';
 }
 ?>

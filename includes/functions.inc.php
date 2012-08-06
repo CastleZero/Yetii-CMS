@@ -138,7 +138,7 @@ function write_ini_file($assoc_arr, $path, $has_sections=FALSE) {
 * Get all the available snippets in the snippets folder and returns them. It also checks if a snippet is valid
 *
 * @author Joseph Duffy
-* @version 1.0
+* @version 1.1
 * @return array 
 */
 function GetSnippets() {
@@ -146,14 +146,46 @@ function GetSnippets() {
     $directories = glob(SNIPPETSFOLDER . '*');
     foreach ($directories as $directory) {
         if (is_dir($directory)) {
-            if (is_file($directory . '/index.php')) {
-                $valid = true;
+            $baseName = str_replace(SNIPPETSFOLDER, '', $directory);
+            if (is_file($directory . '/variables.ini')) {
+                if (is_file($directory .  '/index.php')) {
+                    $files = glob($directory . '/*.ini');
+                    foreach ($files as $file) {
+                        $fileName = str_replace($directory, '', $file);
+                        if ($fileName == '/index.ini' || $fileName == '/variables.ini') {
+                            $name = $baseName;
+                        } else {
+                            $name = $baseName . $fileName;
+                        }
+                        if (count($files) > 1) {
+                            if ($fileName != '/variables.ini') {
+                                $snippet = array('name' => $name, 'valid' => true, 'dynamic' => true);
+                                array_push($snippets, $snippet);
+                            }
+                        } else {
+                            // Only 1 ini file exists, so the snippet it invalid
+                            $snippet = array('name' => $name, 'valid' => 'No custom pages exists.', 'dynamic' => true);
+                            array_push($snippets, $snippet);
+                        }
+                    }
+                } else {
+                    $valid = 'A variables.ini file was present but no index.php was present.';
+                    $snippet = array('name' => $name, 'valid' => $valid, 'dynamic' => true);
+                    array_push($snippets, $snippet);
+                }
             } else {
-                $valid = 'No index.php file found';
+                $files = glob($directory . '/*.php');
+                foreach ($files as $file) {
+                    $fileName = str_replace($directory, '', $file);
+                    if ($fileName == '/index.php') {
+                        $name = $baseName;
+                    } else {
+                        $name = $baseName . $fileName;
+                    }
+                    $snippet = array('name' => $name, 'valid' => true, 'dynamic' => false);
+                    array_push($snippets, $snippet);
+                }
             }
-            $name = str_replace(SNIPPETSFOLDER, '', $directory);
-            $snippet = array('name' => $name, 'valid' => $valid);
-            array_push($snippets, $snippet);
         }
     }
     return $snippets;
@@ -163,40 +195,75 @@ function GetSnippets() {
 * Checks if a snippet is valid, and then displays the snippet if it is
 *
 * @author Joseph Duffy
-* @version 1.0
+* @version 1.1
 * @return string
 */
 
-function GetSnippet($snippet) {
+function GetSnippet($snippet, $parsed = true) {
     $snippetLocation = SNIPPETSFOLDER . $snippet;
     if (is_dir($snippetLocation)) {
-        // The snippets folder was provided, check for an index.php file
+        // The snippets folder was provided, check for an index file
         if (is_file($snippetLocation . '/index.php')) {
+            // An index file was provided
             if (is_file($snippetLocation . '/variables.ini')) {
-                $mapper = new Mapper();
-                if ($databaseVariables = $mapper->GetSnippetVariables($snippet)) {
-                    extract($databaseVariables);
+                // Snippet is dynamic
+                $snippetConfigFile = $snippetLocation . '/variables.ini';
+                if (is_file($snippetLocation . '/index.ini')) {
+                    // Default ini has been created
+                    $snippetVariablesFile = $snippetLocation . '/index.ini';
+                    $snippetVariables = parse_ini_file($snippetVariablesFile, true);
+                    $snippetFile = $snippetLocation . '/index.php';
                 } else {
-                    return 'There was an error loading the snippet "' . $snippet . '". The variables could not be loaded from the database yet a variables.ini file exists.<br>';
+                    // No index.ini file was found, check for it in the database
+                    echo $snippet . ' is a dynamic snippet but no index.ini file was found.';
+                    return false;
                 }
-                unset($mapper);
+            } else {
+                // Snippet is static
+                if (is_file($snippetLocation . '/index.php')) {
+                    $snippetFile = $snippetLocation . '/index.php';
+                } else {
+                    // No index.php file was found, check for it in the database
+                    echo $snippet . '\'s directory was provided but no index.php file was found.';
+                    return false;
+                }
             }
-            ob_start();
-            include($snippetLocation . '/index.php');
-            return ob_get_clean();
         } else {
             // No index.php is present, so the snippet is not valid
             return 'No index.php file was present; snippet cannot be loaded.<br>';
         }
     } else if (is_file($snippetLocation)) {
-        // Snippet it just a file, load the file
-        ob_start();
-        include($snippetLocation);
-        return ob_get_clean();
+        // Snippet provided is a file
+        $snippetFile = $snippetLocation;
     } else {
         // Supplied snippet was not valid
-        return 'Snippet could not be found in the snippets folder.<br>';
+        echo 'Snippet could not be found in the snippets folder.<br>';
+        return false;
     }
+    if ($parsed) {
+        if (isset($snippetVariablesFile)) {
+            extract($snippetVariables);
+        }
+        ob_start();
+        include($snippetFile);
+        $snippet = ob_get_clean();
+    } else {
+        // Not parsing the snippet
+        $snippet = array();
+        if (isset($snippetVariables)) {
+            // Returning a dynamic snippet
+            $snippet['location'] = $snippetVariablesFile;
+            $snippet['code'] = $snippetVariables;
+            $snippet['type'] = 'dynamic';
+            $snippet['configFile'] = $snippetConfigFile;
+        } else {
+            // Returning a static snippet
+            $snippet['location'] = $snippetFile;
+            $snippet['code'] = file_get_contents($snippetFile);
+            $snippet['type'] = 'static';
+        }
+    }
+    return $snippet;
 }
 
 /**

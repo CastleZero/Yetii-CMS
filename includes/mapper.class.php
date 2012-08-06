@@ -135,7 +135,6 @@ class Mapper {
 			$result = $stmt->fetch(PDO::FETCH_ASSOC);
 			// Salt and hash the password
 			$password = crypt($password, '$2a$10$' . $result['salt']);
-			var_dump($password);
 			$stmt = $this->dbh->prepare(self::QUERY_CHECK_USER_INFORMATION);
 			$stmt->execute(array($email, $password));
 			if ($stmt->fetchColumn() !== false) {

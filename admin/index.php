@@ -13,19 +13,9 @@ $requiredAuth = 3;
 			Pages
 		</li>
 	</a>
-	<a href="settings.php">
-		<li>
-			Settings
-		</li>
-	</a>
 	<a href="snippets.php">
 		<li>
-			View/Edit Snippets
-		</li>
-	</a>
-	<a href="addsnippet.php">
-		<li>
-			Add New Snippet
+			Snippets
 		</li>
 	</a>
 	<a href="addnewtemplate.php">
