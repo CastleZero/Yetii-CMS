@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'Home';
+$pageName = 'Home';
 ?>
 <p>
 	Homepage Content</p>

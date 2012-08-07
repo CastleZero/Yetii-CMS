@@ -62,7 +62,7 @@ function GetPage($pageURL, $parsed = true) {
         $pageURL = 'index.php';
     }
     $pageVariables = array();
-    // Get the page contents by first checking if the requested file is a file. If it is not, check if the file is in the database. If it is neither, return a 404 error.
+    // Get the page contents by first checking if the requested file is a file. If it is not, check if the file is in the database. If it is neither, return false
     if (file_exists($pageURL) || file_exists($pageURL . '.php')) {
         $pageSavedIn = 'file';
         if (!file_exists($pageURL)) {
@@ -75,14 +75,19 @@ function GetPage($pageURL, $parsed = true) {
             include($pageURL);
             $pageVariables['pageContents'] = ob_get_clean();
             if (isset($pageName)) {
-                $pageVariables['pageTitle'] = $pageTitle;
+                $pageVariables['pageName'] = $pageName;
             } else {
-                $pageVariables['pageTitle'] = null;
+                $pageVariables['pageName'] = null;
             }
             if (isset($requiredAuth)) {
                 $pageVariables['requiredAuth'] = $requiredAuth;
             } else {
                 $pageVariables['requiredAuth'] = 0;
+            }
+            if (isset($useEngine)) {
+                $pageVariables['useEngine'] = $useEngine;
+            } else {
+                $pageVariables['useEngine'] = true;
             }
         } else {
             $pageVariables['pageContents'] = $fileContents;
@@ -195,7 +200,7 @@ function GetSnippets() {
 * Checks if a snippet is valid, and then displays the snippet if it is
 *
 * @author Joseph Duffy
-* @version 1.1
+* @version 1.1.1
 * @return string
 */
 
@@ -237,7 +242,7 @@ function GetSnippet($snippet, $parsed = true) {
         $snippetFile = $snippetLocation;
     } else {
         // Supplied snippet was not valid
-        echo 'Snippet could not be found in the snippets folder.<br>';
+        echo '"' . $snippet . '" could not be found in the snippets folder.<br>';
         return false;
     }
     if ($parsed) {
