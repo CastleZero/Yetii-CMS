@@ -1,6 +1,5 @@
 <?php
-ob_start(); // Allows us to set headers
-$title = 'Log In';
+$pageName = 'Log In';
 if (isset($_SESSION['user_id'])) {
 	// User already logged in
 	header('Location: index.php');

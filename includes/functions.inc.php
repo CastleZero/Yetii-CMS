@@ -5,7 +5,7 @@ function ShowErrors($errors) {
     <div id="errors">
         Errors<br>
         <ul>
-            <?
+            <?php
             for ($i = 0; $i < count($errors); $i++) {
                 if (isset($errors[$i]['fieldId'])) {
                     // Highlight the field
@@ -16,18 +16,18 @@ function ShowErrors($errors) {
                             $("#<?php echo $errors[$i]['fieldId']; ?>hint").html(cross);
                         });
                     </script>
-                    <?
+                    <?php
                 }
                 ?>
                 <li>
-                    <? echo $errors[$i]['message']; ?><br >
+                    <?php echo $errors[$i]['message']; ?><br >
                 </li>
-                <?
+                <?php
             }
             ?>
         </ul>
     </div>
-    <?
+    <?php
 }
 
 function UsersAuth() {
@@ -370,14 +370,26 @@ function DeleteDirectory($directory) {
     return false;
 }
 
-function CreateEditor($contents, $id = 'codeTextbox') {
-    // Include the CKEditor class.
-    include_once "ckeditor/ckeditor.php";
-    // Create a class instance.
-    $CKEditor = new CKEditor();
-    // Path to the CKEditor directory, ideally use an absolute path instead of a relative dir.
-    $CKEditor->basePath = '/includes/ckeditor/';
-    // Create a textarea element and attach CKEditor to it.
-    $CKEditor->editor($id, $contents);
+function CreateEditor($contents, $id = 'codeTextbox', $editor = 'CuteEditor') {
+    if ($editor == 'ckeditor') {
+        // Include the CKEditor class.
+        include_once 'ckeditor/ckeditor.php';
+        // Create a class instance.
+        $CKEditor = new CKEditor();
+        // Path to the CKEditor directory, ideally use an absolute path instead of a relative dir.
+        $CKEditor->basePath = '/includes/ckeditor/';
+        // Create a textarea element and attach CKEditor to it.
+        $CKEditor->editor($id, $contents);
+    } else {
+        // Include the Cute Editor files
+        include_once 'cuteeditor_files/include_CuteEditor.php';
+        // Create Editor object.
+        $editor = new CuteEditor();
+        $editor->Text = $contents;
+        // Set a unique ID to Editor
+        $editor->ID = $id;
+        // Render Editor
+        $editor->Draw();
+    }
 }
 ?>

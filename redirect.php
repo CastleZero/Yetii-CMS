@@ -1,5 +1,5 @@
 <?php
-$title = 'Redirecting You';
+$pageTitle = 'Redirecting You...';
 switch ($_GET['action']) {
 	case 'login':
 		if (isset($_GET['returnAddress'])) {

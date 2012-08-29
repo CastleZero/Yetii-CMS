@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		$saveToDatabase = true;
 	}
 	// Check the page title
-	$newPageTitle = $_POST['pageTitle'];
+	$newPageName = $_POST['pageName'];
 	if ($_POST['pageTitle'] == '') {
 		$error = array('fieldId' => 'pageTitle', 'message' => 'The page title cannot be empty.');
 		array_push($errors, $error);
@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			$newPageURL = $newPageURL . '.php';
 		}
 		$pageCode = "<?php\r\n" .
-					'$pageTitle = "' . $newPageTitle . "\";\r\n" .
+					'$pageName = "' . $newPageName . "\";\r\n" .
 					'$requiredAuth = ' . $newPageRequiredAuth . ";\r\n" .
 					"?>\r\n" .
 					$pageCode;
@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <form method="POST">
 	Do Not Save To Database (NOT recommended): <input type="checkbox" name="doNotSaveToDatabase" <?php if (isset($saveToDatabase) && $saveToDatabase === false) echo 'checked="checked"'; ?>><br>
 	New Page URL: smiledrivertraining.co.uk/<input type="text" name="newPageURL" <?php if (isset($newPageURL)) echo 'value="' . $newPageURL . '"'; ?> required="required"><br>
-	Page Title = <input type="text" name="pageTitle" <?php if (isset($newPageTitle)) echo 'value="' . $newPageTitle . '"'; ?> required="required"><br>
+	Page Name = <input type="text" name="pageName" <?php if (isset($newPageName)) echo 'value="' . $newPageName . '"'; ?> required="required"><br>
 	Page Required Auth = <input type="number" name="newPageRequiredAuth" <?php if (isset($newPageRequiredAuth)) echo 'value="' . $newPageRequiredAuth . '"'; else echo 'value="0"'; ?> required="required"><br>
 	Page Content
 	<?php

@@ -22,15 +22,15 @@ $pageVariables = GetPage($pageURL);
 if ($pageVariables !== false) {
 	$pageContents = $pageVariables['pageContents'];
 	$requiredAuth = $pageVariables['requiredAuth'];
-	$pageName = $pageVariables['pageName '];
+	$pageName = $pageVariables['pageName'];
 	$useEngine = $pageVariables['useEngine'];
 } else {
 	// Page is not a file and is not in the database, return a 404 Not Found error
 	header('HTTP/1.1 404 Not Found');
-	$pageURL = '404.html';
+	$pageURL = '404.php';
 	$pageVariables = GetPage($pageURL);
 	if ($pageVariables !== false) {
-		// A 404.html file exists
+		// A 404 file exists
 		$pageContents = $pageVariables['pageContents'];
 		$requiredAuth = 0;
 		$pageTitle = '404 Not Found';
@@ -47,7 +47,7 @@ if ($useEngine) {
 		header('HTTP/1.1 403 Forbidden');
 		if (isset($_SESSION['userId'])) {
 			// User is logged in
-			$pageVariables = GetPage('403.html');
+			$pageVariables = GetPage('403.php');
 			if ($pageVariables !== false) {
 				$pageContents = $pageVariables['contents'];
 			} else {
@@ -113,10 +113,10 @@ if ($useEngine) {
 		$link = $includedTemplateFiles[$i];
 		$href = $link->attr['href'];
 		if (substr($href, 0, 1) != '/') {
-			$href = '/' . $href;
+			// Only replace files that are relative to the template folder
+			$href = '/' . $templateFolder . '/' . $href;
+			$html->find('[href]', $i)->attr['href'] = $href;
 		}
-		$href = '/' . $templateFolder . $href;
-		$html->find('[href]', $i)->attr['href'] = $href;
 	}
 	// Get the elements array from the elements.ini file
 	$elements = parse_ini_file($INITemplate, true);

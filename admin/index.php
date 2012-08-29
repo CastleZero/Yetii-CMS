@@ -1,24 +1,24 @@
 <?php
-$title = 'Admin Area';
+$pageName = 'Admin Area';
 $requiredAuth = 3;
 ?>
 <ul>
-	<a href="links.php">
+	<a href="/admin/links.php">
 		<li>
 			Links
 		</li>
 	</a>
-	<a href="pages.php">
+	<a href="/admin/pages.php">
 		<li>
 			Pages
 		</li>
 	</a>
-	<a href="snippets.php">
+	<a href="/admin/snippets.php">
 		<li>
 			Snippets
 		</li>
 	</a>
-	<a href="addnewtemplate.php">
+	<a href="/admin/addnewtemplate.php">
 		<li>
 			Add New Template
 		</li>
