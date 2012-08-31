@@ -1,6 +1,6 @@
 <?php
 $pageName = 'Log In';
-if (isset($_SESSION['user_id'])) {
+if (isset($_SESSION['userId'])) {
 	// User already logged in
 	header('Location: index.php');
 	exit;

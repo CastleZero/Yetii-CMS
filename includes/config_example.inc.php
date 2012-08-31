@@ -6,7 +6,7 @@ define('DB_USER', 'database_user');
 define('DB_PASS', 'database_passwrd');
 
 // Define the folders
-define('ROOTFOLDER', '');
+define('ROOTFOLDER', '');  // CHANGING THE ROOT FOLDER DOES NOT CURRENTLY WORK.
 define('PAGESFOLDER', ROOTFOLDER . 'pages/');
 define('TEMPLATESFOLDER', ROOTFOLDER . 'templates/');
 define('SNIPPETSFOLDER', ROOTFOLDER . 'snippets/');
