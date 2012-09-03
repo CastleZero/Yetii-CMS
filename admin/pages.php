@@ -153,21 +153,14 @@ if (isset($_GET['pageURL'])) {
 		All Pages in the database:<br>
 		<table>
 			<th>Page URL</th>
-			<th>Valid Page?</th>
 			<th>Edit Page</th>
 			<th>Delete Page</th>
 			<?php
 			foreach ($pages as $page) {
 				$pageURL = $page['page_url'];
-				if (GetPage($pageURL, true)) {
-					$validPage = 'Yes';
-				} else {
-					$validPage = 'No';
-				}
 				?>
 				<tr>
 					<td><?php echo $pageURL; ?></td>
-					<td><?php echo $validPage; ?></td>
 					<td><a href="?pageURL=<?php echo $pageURL; ?>">Edit This Page</a></td>
 					<td><a href="?deletePageURL=<?php echo $pageURL; ?>">Delete This Page</a></td>
 				</tr>

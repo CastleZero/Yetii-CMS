@@ -69,8 +69,8 @@ class Page {
 			$this->requiredAuth = $pageVariables['requiredAuth'];
 			if ($parsed) {
 				ob_start();
-				print $pageVariables['content'];
-				$this->contents = ob_get_clean();
+	            eval('?>' . $pageVariables['content']);
+	            $this->contents = ob_get_clean();
 			} else {
 				$this->contents = $pageVariables['content'];
 			}

@@ -1,16 +1,16 @@
 <?php
 session_start();
+// Check if we're in maintenance mode
+if (is_file('maintenance')) {
+	header('HTTP/1.1 503 Service Unavailable');
+	echo file_get_contents('maintenance');
+	exit;
+}
 require_once('includes/config.inc.php'); /* Database connection */
 require_once('includes/simple_html_dom.php'); /* Used to manipulate the supplied template */
 require_once('includes/mapper.class.php'); /* Contains the mapper class used to connect to the database */
 require_once('includes/functions.inc.php'); /* Contains various functions used around the site */
 require_once('includes/page.class.php'); /* Contains the page class used to create a page */
-// Check if we're in maintenance mode
-if (is_file('maintenance')) {
-	header('HTTP/1.1 503 Service Unavailable')
-	echo file_get_contents('maintenance');
-	exit;
-}
 // Get the page name
 if (isset($_GET['page'])) {
 	// Get the page name from the supplied GET value

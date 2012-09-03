@@ -1,5 +1,4 @@
 <?php
 $pageName = 'Home!';
 ?>
-<p>
-	Homepage Content</p>
+<p>Homepage Content</p>
