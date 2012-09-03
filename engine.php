@@ -4,6 +4,12 @@ require_once('includes/config.inc.php'); /* Database connection */
 require_once('includes/simple_html_dom.php'); /* Used to manipulate the supplied template */
 require_once('includes/mapper.class.php'); /* Contains the mapper class used to connect to the database */
 require_once('includes/functions.inc.php'); /* Contains various functions used around the site */
+require_once('includes/page.class.php'); /* Contains the page class used to create a page */
+// Check if we're in maintenance mode
+if (is_file('maintenance')) {
+	echo file_get_contents('maintenance');
+	exit;
+}
 // Get the page name
 if (isset($_GET['page'])) {
 	// Get the page name from the supplied GET value
@@ -12,51 +18,18 @@ if (isset($_GET['page'])) {
 	// No page name is set, just fetch the index file
 	$pageURL = 'index.php';
 }
-$pageVariables = GetPage($pageURL);
-if ($pageVariables !== false) {
-	$pageContents = $pageVariables['pageContents'];
-	$requiredAuth = $pageVariables['requiredAuth'];
-	$pageName = $pageVariables['pageName'];
-	$useEngine = $pageVariables['useEngine'];
-} else {
-	// Page is not a file and is not in the database, return a 404 Not Found error
-	header('HTTP/1.1 404 Not Found');
-	$pageURL = '404.php';
-	$pageVariables = GetPage($pageURL);
-	if ($pageVariables !== false) {
-		// A 404 file exists
-		$pageContents = $pageVariables['pageContents'];
-		$requiredAuth = 0;
-		$pageName = '404 Not Found';
-		$useEngine = true;
-	} else {
-		$pageContents = '404 Not Found';
-		$requiredAuth = 0;
-		$pageName = '404 Not Found';
-		$useEngine = true;
-	}
+$page = new Page();
+$page->LoadPage($pageURL);
+if ($page->header) {
+	header($page->header);
 }
-if ($useEngine) {
+if ($page->redirectTo) {
+	// Page is being redirected
+	header('Location: ' . $page->redirectTo);
+	exit;
+}
+if ($page->useEngine) {
 	// Page being loaded wants to use the engine to be rendered
-	// Check for required permissions
-	if ($requiredAuth > UsersAuth()) {
-		header('HTTP/1.1 403 Forbidden');
-		if (isset($_SESSION['userId'])) {
-			// User is logged in
-			$pageVariables = GetPage('403.php');
-			if ($pageVariables !== false) {
-				$pageContents = $pageVariables['contents'];
-			} else {
-				$pageContents = '403 Forbidden';
-			}
-		} else {
-			// User is not logged in, send them to the log in page
-			$url = parse_url($_SERVER["REQUEST_URI"]);
-			header('Location: /login.php?returnAddress=' . $url['path']);
-			exit;
-		}
-	}
-	// User has required permissions to access this page
 	// Get the name of the page (including the directory path) so we can check for the correct template file
 	if (is_dir($pageURL)) {
 	    if (substr($pageURL, '-1') != '/') {
@@ -96,11 +69,13 @@ if ($useEngine) {
 		exit;
 	}
 	// Create the page title
-	if ($pageName !== null) {
-		$pageTitle = $pageName . ' - ' . WEBSITENAME;
+	if ($page->name !== null) {
+		$pageTitle = $page->name . ' - ' . WEBSITENAME;
 	} else {
 		$pageTitle = WEBSITENAME;
 	}
+	// Create the page contents
+	$pageContents = $page->contents;
 	// Non-OO method
 	$html = file_get_html($HTMLTemplate);
 	// Get all the included files (e.g. css or javascript files) and add the basepath to them so that the browser loads them correctly

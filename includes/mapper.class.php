@@ -1,7 +1,10 @@
 <?php
 
 class Mapper {
-	const QUERY_GET_PAGE = "SELECT required_auth, page_variables, page_title, page_type FROM pages WHERE page_url = ?";
+	const QUERY_GET_PAGE = "SELECT page_name, required_auth, page_content FROM pages WHERE page_url = ?";
+	const QUERY_CHANGE_PAGE_URL = "UPDATE pages SET page_url = ? WHERE page_url = ?";
+	const QUERY_ADD_NEW_PAGE = "INSERT INTO pages (page_url, page_name, required_auth, page_content) VALUES (?, ?, ?, ?)";
+	const QUERY_UPDATE_PAGE = "UPDATE pages SET page_name = ?, required_auth = ?, page_content = ? WHERE page_url = ?";
 	const QUERY_GET_PAGES = "SELECT page_url FROM pages";
 	const QUERY_GET_SNIPPET_VARIABLES = "SELECT variables FROM snippets WHERE snippet_name = ?";
 	const QUERY_GET_SETTINGS = "SELECT website_name, template FROM settings LIMIT 0, 1";
@@ -10,8 +13,6 @@ class Mapper {
 	const QUERY_GET_USER_INFORMATION = "SELECT email, password, display_name, auth_level FROM users WHERE user_id = ?";
 	const QUERY_CHECK_USER_EMAIL = "SELECT salt FROM users WHERE email = ?";
 	const QUERY_CHECK_USER_INFORMATION = "SELECT user_id, auth_level, display_name FROM users WHERE email = ? AND password = ?";
-	const QUERY_UPDATE_PAGE = "UPDATE pages SET page_url = ? WHERE page_url = ?";
-	const QUERY_ADD_NEW_PAGE = "INSERT INTO pages (page_url) VALUES (?)";
 	const QUERY_DELETE_PAGE = "DELETE FROM pages WHERE page_url = ?";
 	protected $dbh;
 	
@@ -19,22 +20,46 @@ class Mapper {
 		$this->dbh = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASS);
 	}
 
-	public function GetPageContent($pageURL) {
+	public function GetPage($url) {
 		$stmt = $this->dbh->prepare(self::QUERY_GET_PAGE);
-		$stmt->execute(array($pageURL));
-		if ($stmt->fetchColumn() !== false) {
-			$stmt = $this->dbh->prepare(self::QUERY_GET_PAGE);
-			$stmt->execute(array($pageURL));
-			$result = $stmt->fetch(PDO::FETCH_ASSOC);
+		$stmt->execute(array($url));
+		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+		if ($result['page_name']) {
 			$valuesArray = array(
-								'storedVariables' => $result['page_variables'],
+								'name' => $result['page_name'],
 								'requiredAuth' => $result['required_auth'],
-								'pageTitle' => $result['page_title'],
-								'pageType' => $result['page_type']
+								'content' => $result['page_content']
 								);
 			return $valuesArray;
 		} else {
 			return false;
+		}
+	}
+
+	public function SavePage($url, $name, $requiredAuth, $contents, $oldURL = false) {
+		if ($this->GetPage($url) !== false || $this->GetPage($oldURL) !== false) {
+			// Page already exists; update it
+			if ($oldURL !== false) {
+				// The URL of the page is being updated
+				$stmt = $this->dbh->prepare(self::QUERY_CHANGE_PAGE_URL);
+				if (!$stmt->execute(array($url, $oldURL))) {
+					return false;
+				}
+			}
+			$stmt = $this->dbh->prepare(self::QUERY_UPDATE_PAGE);
+			if ($stmt->execute(array($name, $requiredAuth, $contents, $url))) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			// Page is new; create it
+			$stmt = $this->dbh->prepare(self::QUERY_ADD_NEW_PAGE);
+			if ($stmt->execute(array($url, $name, $requiredAuth, $contents))) {
+				return true;
+			} else {
+				return false;
+			}
 		}
 	}
 
@@ -150,24 +175,6 @@ class Mapper {
 			} else {
 				return false;
 			}
-		} else {
-			return false;
-		}
-	}
-
-	public function UpdatePage($oldPageURL, $newPageURL) {
-		$stmt = $this->dbh->prepare(self::QUERY_UPDATE_PAGE);
-		if ($stmt->execute(array($newPageURL, $oldPageURL))) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	public function AddNewPage($pageURL) {
-		$stmt = $this->dbh->prepare(self::QUERY_ADD_NEW_PAGE);
-		if ($stmt->execute(array($pageURL))) {
-			return true;
 		} else {
 			return false;
 		}

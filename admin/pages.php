@@ -1,66 +1,110 @@
 <?php
-$pageTitle = 'Pages';
+$pageName = 'Pages';
 $requiredAuth = 3;
 $errors = array();
 if (isset($_GET['pageURL'])) {
 	// Editing a page
-	$pageURL = $_GET['pageURL'];
-	$pageVariables = GetPage($pageURL, false); // Get the page variables (unparsed)
-	$pageCode = $pageVariables['pageContents'];
-	if ($pageCode === false) {
-		echo 'Page URL is not a valid page URL.<br>';
-	} else {
-		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-			// Save the page
-			$pageCode = $_POST['pageCode'];
-			if ($pageURL !== $_POST['pageURL']) {
+	$url = $_GET['pageURL'];
+	$page = new Page();
+	if ($page->LoadPage($url, false) !== false) { // Get the page variables (unparsed)
+		$savedTo = $page->savedTo;
+		if (isset($_POST['pageURL'])) {
+			if ($url !== $_POST['pageURL']) {
 				// Updating the pages URL
-				$newPageURL = $_POST['pageURL'];
-				if (is_file($newPageURL . '.php') || is_file($newPageURL)) {
-					$error = array('fieldId' => 'newPageURL', 'message' => 'The chosen URL is already taken by a file. Please chose another name.');
-					array_push($errors, $error);
-				} else if (is_dir($newPageURL)) {
-					$error = array('fieldId' => 'newPageURL', 'message' => 'The chosen URL is already taken by a directory. To specify a file add ".php" to the end of the file name.');
+				$oldURL = $_GET['pageURL'];
+				if (IsPage($url) === true) {
+					$error = array('fieldId' => 'pageURL', 'message' => 'The chosen URL is already taken. Please chose another URL.');
 					array_push($errors, $error);
 				}
-			}
-			if (count($errors) > 0) {
-				showErrors($errors);
 			} else {
-				if (isset($newPageURL)) {
-					// Changing URL
-					if (file_put_contents($newPageURL, $pageCode)) {
-						$mapper = new Mapper();
-						if (unlink($pageURL)) {
-							if ($mapper->UpdatePage($pageURL, $newPageURL)) {
-								echo 'Page has been saved and can now be <a href="/admin/pages.php?pageURL=' . $newPageURL . '">edited at using the new URL</a>. It has also been updated in the database.<br>';
-							} else {
-								echo 'The page has been saved but there was an error updating the database entry.<br>';
-							}
-							unset($mapper);
+				$oldURL = false;
+			}
+			$url = $_POST['pageURL'];
+		} else {
+			$url = $page->url;
+		}
+		if (isset($_POST['name'])) {
+			$name = $_POST['name'];
+		} else {
+			$name = $page->name;
+		}
+		if (isset($_POST['requiredAuth'])) {
+			$requiredAuth = $_POST['requiredAuth'];
+		} else {
+			$requiredAuth = $page->requiredAuth;
+		}
+		if (isset($_POST['contents'])) {
+			$contents = $_POST['contents'];
+		} else {
+			$contents = $page->contents;
+		}
+		if (isset($_POST['metaDescription'])) {
+			$metaDescription = $_POST['metaDescription'];
+		} else {
+			$metaDescription = $page->metaDescription;
+		}
+		if (count($errors) > 0) {
+			showErrors($errors);
+		} else {
+			if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+				// Save the page
+				if ($savedTo == 'database') {
+					$mapper = new Mapper();
+					if ($mapper->SavePage($url, $name, $requiredAuth, $contents, $oldURL)) {
+						if ($oldURL) {
+							echo 'Page URL has been updated. You can <a href="/admin/pages.php?pageURL=' . $url . '">edit the page using its new URL</a>.<br>';
+							return;
 						} else {
-							echo 'There was an error deleting the old file you. The new page can now be <a href="/admin/pages.php?pageURL=' . $newPageURL . '">edited at using the new URL</a>.<br>';
+							echo 'Page was successfully updated!<br>';
 						}
-						return;
 					} else {
-						echo 'There was an error saving the new file. Please try again.<br>';
+						echo 'There was an error updating the page. Please try again.<br>';
 					}
 				} else {
-					if (!file_put_contents($pageURL, $pageCode)) {
-						echo 'Error saving file. Please try again.<br>';
-					} else {
-						echo 'Page updated!<br>';
-					}
+					// Save the page to a file
+					echo 'You cannot currently update a page in a file. Please create a new page and store it in the database.<br>';
+					// if ($oldURL) {
+					// 	// Changing URL
+					// 	if (file_put_contents($url, $contents)) {
+					// 		if (unlink($oldURL)) {
+					// 			echo 'Page has been saved and can now be <a href="/admin/pages.php?pageURL=' . $url . '">edited using the new URL</a>.<br>';
+					// 		} else {
+					// 			echo 'There was an error deleting the old file. The new page can now be <a href="/admin/pages.php?pageURL=' . $url . '">edited at using the new URL</a>.<br>';
+					// 		}
+					// 		return;
+					// 	} else {
+					// 		echo 'There was an error saving the new file. Please try again.<br>';
+					// 	}
+					// } else {
+					// 	if (!file_put_contents($url, $contents)) {
+					// 		echo 'Error saving file. Please try again.<br>';
+					// 	} else {
+					// 		echo 'Page updated!<br>';
+					// 	}
+					// }
 				}
 			}
 		}
 		?>
 		<form method="POST">
-			Page URL: <input type="text" name="pageURL" id="pageURL" value="<?php echo $pageURL; ?>" required="required"><br>
-			<?php CreateEditor($pageCode, 'pageCode'); ?>
+			Saved To: <?php echo $savedTo; ?><br>
+			Page URL: <input type="text" name="pageURL" id="pageURL" value="<?php echo $url; ?>" required="required"><br>
+			<?php if ($savedTo == 'database') {
+				?>
+				Page Name = <input type="text" name="name" value="<?php echo $name; ?>" required="required"><br>
+				Page Required Auth = <input type="number" name="requiredAuth" value="<?php echo $requiredAuth; ?>" required="required"><br>
+			<?php } ?>
+			Page Content
+			<?php CreateEditor($contents, 'contents'); ?>
+			<?php if ($savedTo == 'database') {
+				?>
+				Meta Description: <input type="text" name="metaDescription" value="<?php echo $metaDescription; ?>"><br>
+			<?php } ?>
 			<input type="submit" value="Save Page">
 		</form>
 		<?php
+	} else {
+		echo 'Page URL could not be found.<br>';
 	}
 } else if (isset($_GET['deletePageURL'])) {
 	$pageURL = $_GET['deletePageURL'];

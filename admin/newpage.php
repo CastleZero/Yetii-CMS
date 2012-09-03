@@ -5,69 +5,81 @@ $errors = array();
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	// New page form has been submitted
 	// Check if the checkbox has been checked. If it has not been checked, it probably won't have been sent through POST
-	if (isset($_POST['doNotSaveToDatabase']) && $_POST['doNotSaveToDatabase'] === 'on') {
-		$saveToDatabase = false;
+	if (isset($_POST['saveToFile']) && $_POST['saveToFile'] === 'on') {
+		$saveToFile = true;
 	} else {
-		$saveToDatabase = true;
+		$saveToFile = false;
 	}
-	// Check the page title
+	// Check if the requested new page URL is already taken or is available
+	$newPageURL = $_POST['newPageURL'];
+	if (IsPage($newPageURL) === true) {
+		$error = array('fieldId' => 'newPageURL', 'message' => 'The chosen URL is already taken. Please chose another URL.');
+		array_push($errors, $error);
+	}
+	// Check the page name
 	$newPageName = $_POST['pageName'];
-	if ($_POST['pageTitle'] == '') {
-		$error = array('fieldId' => 'pageTitle', 'message' => 'The page title cannot be empty.');
+	if ($newPageName == '') {
+		$error = array('fieldId' => 'pageName', 'message' => 'The page name cannot be empty.');
 		array_push($errors, $error);
 	}
 	// Check if the required auth is set and an integer
 	$newPageRequiredAuth = $_POST['newPageRequiredAuth'];
 	if (!is_numeric($newPageRequiredAuth)) {
-		var_dump($newPageRequiredAuth);
 		$error = array('fieldId' => 'newPageRequiredAuth', 'message' => 'The required auth cannot be empty and must be an integer.');
 		array_push($errors, $error);
 	}
-	// Check if the requested new page URL is already taken or is available
-	$newPageURL = $_POST['newPageURL'];
-	if (is_file($newPageURL . '.php') || is_file($newPageURL)) {
-		$error = array('fieldId' => 'newPageURL', 'message' => 'The chosen URL is already taken by a file. Please chose another name.');
-		array_push($errors, $error);
-	} else if (is_dir($newPageURL)) {
-		$error = array('fieldId' => 'newPageURL', 'message' => 'The chosen URL is already taken by a directory. To specify a file add ".php" to the end of the file name.');
-		array_push($errors, $error);
-	} 
-	// Get the page contents
+	// Get the page's code
 	$pageCode = $_POST['pageCode'];
 	if (count($errors) > 0) {
 		showErrors($errors);
 	} else {
 		// Input has been validated, so save the file to the system
-		$pathInfo = pathinfo($newPageURL);
-		if (!array_key_exists('extension', $pathInfo)) {
-			// Page did not have an extension set, so add .php to the end
-			$newPageURL = $newPageURL . '.php';
-		}
-		$pageCode = "<?php\r\n" .
-					'$pageName = "' . $newPageName . "\";\r\n" .
-					'$requiredAuth = ' . $newPageRequiredAuth . ";\r\n" .
-					"?>\r\n" .
-					$pageCode;
-		if (file_put_contents($newPageURL, $pageCode)) {
-			echo 'Page saved! You can now <a href="/admin/pages.php?pageURL=' . $newPageURL . '">edit the file</a>.<br>';
-			if ($saveToDatabase) {
-				$mapper = new Mapper();
-				if ($mapper->AddNewPage($newPageURL)) {
-					echo 'Page was also added to database.<br>';
-				} else {
-					echo 'There was an error adding the file to the database.<br>';
-				}
+		if ($saveToFile) {
+			$pathInfo = pathinfo($newPageURL);
+			if (!array_key_exists('extension', $pathInfo)) {
+				// Page did not have an extension set, so add .php to the end
+				$newPageURL = $newPageURL . '.php';
 			}
-			return;
+			$pageCode = "<?php\r\n" .
+						'$pageName = "' . $newPageName . "\";\r\n" .
+						'$requiredAuth = ' . $newPageRequiredAuth . ";\r\n" .
+						"?>\r\n" .
+						$pageCode;
+			if (file_put_contents($newPageURL, $pageCode)) {
+				echo 'Page saved! You can now <a href="/admin/pages.php?pageURL=' . $newPageURL . '">edit the file</a>.<br>';
+				if ($saveToDatabase) {
+					$mapper = new Mapper();
+					if ($mapper->AddNewPage($newPageURL)) {
+						echo 'Page was also added to database.<br>';
+					} else {
+						echo 'There was an error adding the file to the database.<br>';
+					}
+				}
+				return;
+			} else {
+				echo 'There was error saving the file. Please try again.<br>';
+			}
 		} else {
-			echo 'There was error saving the file. Please try again.<br>';
+			// Save the page to the database
+			require_once 'includes/htmlpurifier/library/HTMLPurifier.auto.php';
+			$config = HTMLPurifier_Config::createDefault();
+			$purifier = new HTMLPurifier($config);
+			$pageCode = $purifier->purify($pageCode);
+			unset($purifier);
+			$mapper = new Mapper();
+			if ($mapper->SavePage($newPageURL, $newPageName, $newPageRequiredAuth, $pageCode)) {
+				echo 'Page saved! You can now <a href="/admin/pages.php?pageURL=' . $url . '">edit the page</a>.<br>';
+				return;
+			} else {
+				echo 'There was an error saving the page, please try again.<br>';
+			}
 		}
 	}
 }
 ?>
 <form method="POST">
-	Do Not Save To Database (NOT recommended): <input type="checkbox" name="doNotSaveToDatabase" <?php if (isset($saveToDatabase) && $saveToDatabase === false) echo 'checked="checked"'; ?>><br>
-	New Page URL: smiledrivertraining.co.uk/<input type="text" name="newPageURL" <?php if (isset($newPageURL)) echo 'value="' . $newPageURL . '"'; ?> required="required"><br>
+	Save to file (NOT recommended): <input type="checkbox" name="saveToFile" <?php if (isset($saveToFile) && $saveToFile === true) echo 'checked="checked"'; ?>><br>
+	New Page URL: /<input type="text" name="newPageURL" <?php if (isset($newPageURL)) echo 'value="' . $newPageURL . '"'; ?> required="required"><br>
 	Page Name = <input type="text" name="pageName" <?php if (isset($newPageName)) echo 'value="' . $newPageName . '"'; ?> required="required"><br>
 	Page Required Auth = <input type="number" name="newPageRequiredAuth" <?php if (isset($newPageRequiredAuth)) echo 'value="' . $newPageRequiredAuth . '"'; else echo 'value="0"'; ?> required="required"><br>
 	Page Content

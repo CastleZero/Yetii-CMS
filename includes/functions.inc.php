@@ -56,6 +56,15 @@ function UsersAuth() {
     }
 }
 
+function IsPage($url) {
+    $page = new Page();
+    if ($page->LoadPage($url) === false) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
 /**
 * 
 *
@@ -387,7 +396,7 @@ function DeleteDirectory($directory) {
     return false;
 }
 
-function CreateEditor($contents, $id = 'codeTextbox', $editor = 'CuteEditor') {
+function CreateEditor($contents, $id = 'codeTextbox', $editor = 'ckeditor') {
     if ($editor == 'ckeditor') {
         // Include the CKEditor class.
         include_once 'ckeditor/ckeditor.php';
@@ -395,8 +404,26 @@ function CreateEditor($contents, $id = 'codeTextbox', $editor = 'CuteEditor') {
         $CKEditor = new CKEditor();
         // Path to the CKEditor directory, ideally use an absolute path instead of a relative dir.
         $CKEditor->basePath = '/includes/ckeditor/';
+        // Create the config
+        $config['toolbar'] = array(
+            array( 'Source','-',
+                  'Cut','Copy','Paste','PasteText','PasteFromWord','-',
+                  'Undo','Redo','-',
+                  'Find','Replace','-',
+                  'SelectAll','RemoveFormat'),
+            '/',
+            array('Bold','Italic','Underline','Strike','-',
+                  'Subscript','Superscript','-',
+                  'NumberedList','BulletedList','-',
+                  'Link','Unlink','Anchor','-',
+                  'Image','SpecialChar'
+                  ),
+            '/',
+            array('Format','Font','FontSize','-',
+                  'TextColor','BGColor')
+        );
         // Create a textarea element and attach CKEditor to it.
-        $CKEditor->editor($id, $contents);
+        $CKEditor->editor($id, $contents, $config);
     } else {
         // Include the Cute Editor files
         include_once 'cuteeditor_files/include_CuteEditor.php';
