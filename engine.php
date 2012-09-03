@@ -7,6 +7,7 @@ require_once('includes/functions.inc.php'); /* Contains various functions used a
 require_once('includes/page.class.php'); /* Contains the page class used to create a page */
 // Check if we're in maintenance mode
 if (is_file('maintenance')) {
+	header('HTTP/1.1 503 Service Unavailable')
 	echo file_get_contents('maintenance');
 	exit;
 }
