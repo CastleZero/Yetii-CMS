@@ -4,12 +4,6 @@ require_once('includes/config.inc.php'); /* Database connection */
 require_once('includes/simple_html_dom.php'); /* Used to manipulate the supplied template */
 require_once('includes/mapper.class.php'); /* Contains the mapper class used to connect to the database */
 require_once('includes/functions.inc.php'); /* Contains various functions used around the site */
-// Get all settings from the database (this could be removed in future in favor of only using files for configuration)
-$mapper = new Mapper();
-$settingsArray = $mapper->GetSettings();
-// Extract them into variables, e.g. $template
-extract($settingsArray);
-unset($mapper);
 // Get the page name
 if (isset($_GET['page'])) {
 	// Get the page name from the supplied GET value
@@ -33,11 +27,13 @@ if ($pageVariables !== false) {
 		// A 404 file exists
 		$pageContents = $pageVariables['pageContents'];
 		$requiredAuth = 0;
-		$pageTitle = '404 Not Found';
+		$pageName = '404 Not Found';
+		$useEngine = true;
 	} else {
 		$pageContents = '404 Not Found';
 		$requiredAuth = 0;
-		$pageTitle = '404 Not Found';
+		$pageName = '404 Not Found';
+		$useEngine = true;
 	}
 }
 if ($useEngine) {
@@ -82,11 +78,11 @@ if ($useEngine) {
 	} else {
 		$templateFile = $pageURL;
 	}
-	if (isset($_GET['template'])) {
+	if (isset($_GET['template']) && is_dir($_GET['template'])) {
 		// We want a custom template
 		$templateFolder = $_GET['template']; 
 	} else {
-		$templateFolder = TEMPLATESFOLDER . $template . '/';
+		$templateFolder = TEMPLATESFOLDER . TEMPLATE . '/';
 	}
 	// Check which (if any) templates are available
 	if (is_file($templateFolder . $templateFile . '.html') && is_file($templateFolder . $templateFile . '.ini')) {
@@ -101,9 +97,9 @@ if ($useEngine) {
 	}
 	// Create the page title
 	if ($pageName !== null) {
-		$pageTitle = $pageName . ' - ' . $websiteName;
+		$pageTitle = $pageName . ' - ' . WEBSITENAME;
 	} else {
-		$pageTitle = $websiteName;
+		$pageTitle = WEBSITENAME;
 	}
 	// Non-OO method
 	$html = file_get_html($HTMLTemplate);
@@ -175,6 +171,7 @@ if ($useEngine) {
 	$html = $html->save();
 	echo $html;
 } else {
+	// Page being loaded does not need to use the engine
 	echo $pageContents;
 }
 ?>

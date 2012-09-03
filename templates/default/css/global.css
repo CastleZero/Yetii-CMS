@@ -281,25 +281,23 @@ header {
 
 nav {
     min-height: 2em;
-    background-color: grey;
+    background-color: rgb(128, 128, 128);
 }
 
 nav ul {
     text-align: center;
-    overflow: hidden;
 }
 
 nav li {
 	display: inline;
     float: left;
-    background-color: white;
-    border-radius: 0.5em;
+    line-height: 1em;
+    padding-top: 0.5em;
 }
 
 /* Force a tags within list items to fill the entire li element and keep it valid HTML/CSS */
 nav li > a {
     display: block;
-    padding: 0.1em 0;
     color: inherit !important;
     text-decoration: none;
 }

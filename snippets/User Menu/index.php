@@ -1,5 +1,5 @@
 <?php
-$displayLogin = false;
+$displayLogin = true;
 if (isset($_SESSION['displayName'])) {
 	// User is logged in
 	echo 'Welcome, <a href="#" title="View your profile">' . $_SESSION['displayName'] . '</a>. <a href="/logout.php">Log Out</a>';

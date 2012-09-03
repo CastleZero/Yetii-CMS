@@ -6,8 +6,12 @@ define('DB_USER', 'database_user');
 define('DB_PASS', 'database_passwrd');
 
 // Define the folders
-define('ROOTFOLDER', '');  // CHANGING THE ROOT FOLDER DOES NOT CURRENTLY WORK.
-define('PAGESFOLDER', ROOTFOLDER . 'pages/');
-define('TEMPLATESFOLDER', ROOTFOLDER . 'templates/');
-define('SNIPPETSFOLDER', ROOTFOLDER . 'snippets/');
+define('PAGESFOLDER', 'pages/');
+define('TEMPLATESFOLDER', 'templates/');
+define('SNIPPETSFOLDER', 'snippets/');
+
+// Define others
+define('WEBSITENAME', 'My Website Name');
+define('TEMPLATE', 'default');
+define('LANGUAGE', 'en_gb');
 ?>

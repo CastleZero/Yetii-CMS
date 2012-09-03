@@ -30,6 +30,23 @@ function ShowErrors($errors) {
     <?php
 }
 
+function GetLocaleText($text) {
+    if (is_file('includes/locales/' . LANGUAGE . '.json')) {
+        $languageFile = file_get_contents('includes/locales/' . LANGUAGE . '.json');
+        if ($languageFile !== false) {
+            // Language file exists
+            $languageArray = json_decode($languageFile, true);
+            if (array_key_exists($text, $languageArray)) {
+                if (array_key_exists('text', $languageArray[$text])) {
+                    echo $languageArray[$text]['text'] . '<br>';
+                }
+            }
+        }
+    } else {
+        echo 'Language file for "' . LANGUAGE . '" could not be found. Please choose the correct language.<br>';
+    }
+}
+
 function UsersAuth() {
     if (isset($_SESSION['userId'])) {
         $mapper = new Mapper();
