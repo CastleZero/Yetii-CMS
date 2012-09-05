@@ -436,4 +436,5 @@ function CreateEditor($contents, $id = 'codeTextbox', $editor = 'ckeditor') {
         $editor->Draw();
     }
 }
+
 ?>

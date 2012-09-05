@@ -1,10 +1,10 @@
 <?php
 
 class Mapper {
-	const QUERY_GET_PAGE = "SELECT page_name, required_auth, page_content FROM pages WHERE page_url = ?";
+	const QUERY_GET_PAGE = "SELECT page_name, required_auth, page_content, meta_description FROM pages WHERE page_url = ?";
 	const QUERY_CHANGE_PAGE_URL = "UPDATE pages SET page_url = ? WHERE page_url = ?";
-	const QUERY_ADD_NEW_PAGE = "INSERT INTO pages (page_url, page_name, required_auth, page_content) VALUES (?, ?, ?, ?)";
-	const QUERY_UPDATE_PAGE = "UPDATE pages SET page_name = ?, required_auth = ?, page_content = ? WHERE page_url = ?";
+	const QUERY_ADD_NEW_PAGE = "INSERT INTO pages (page_url, page_name, required_auth, page_content, meta_description) VALUES (?, ?, ?, ?, ?)";
+	const QUERY_UPDATE_PAGE = "UPDATE pages SET page_name = ?, required_auth = ?, page_content = ?, meta_description = ? WHERE page_url = ?";
 	const QUERY_GET_PAGES = "SELECT page_url FROM pages";
 	const QUERY_GET_SNIPPET_VARIABLES = "SELECT variables FROM snippets WHERE snippet_name = ?";
 	const QUERY_GET_SETTINGS = "SELECT website_name, template FROM settings LIMIT 0, 1";
@@ -28,7 +28,8 @@ class Mapper {
 			$valuesArray = array(
 								'name' => $result['page_name'],
 								'requiredAuth' => $result['required_auth'],
-								'content' => $result['page_content']
+								'content' => $result['page_content'],
+								'metaDescription' => $result['meta_description']
 								);
 			return $valuesArray;
 		} else {
@@ -36,7 +37,7 @@ class Mapper {
 		}
 	}
 
-	public function SavePage($url, $name, $requiredAuth, $contents, $oldURL = false) {
+	public function SavePage($url, $name, $requiredAuth, $contents, $metaDescription, $oldURL = false) {
 		if ($this->GetPage($url) !== false || $this->GetPage($oldURL) !== false) {
 			// Page already exists; update it
 			if ($oldURL !== false) {
@@ -47,7 +48,7 @@ class Mapper {
 				}
 			}
 			$stmt = $this->dbh->prepare(self::QUERY_UPDATE_PAGE);
-			if ($stmt->execute(array($name, $requiredAuth, $contents, $url))) {
+			if ($stmt->execute(array($name, $requiredAuth, $contents, $metaDescription, $url))) {
 				return true;
 			} else {
 				return false;
@@ -55,7 +56,7 @@ class Mapper {
 		} else {
 			// Page is new; create it
 			$stmt = $this->dbh->prepare(self::QUERY_ADD_NEW_PAGE);
-			if ($stmt->execute(array($url, $name, $requiredAuth, $contents))) {
+			if ($stmt->execute(array($url, $name, $requiredAuth, $metaDescription, $contents))) {
 				return true;
 			} else {
 				return false;

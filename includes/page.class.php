@@ -1,9 +1,7 @@
 <?php
 
 class Page {
-	public $url, $name, $contents, $metaDescription, $savedTo, $header, $redirectTo;
-	public $requiredAuth = 0;
-	public $useEngine = true;
+	public $url, $name, $contents, $metaDescription, $savedTo, $header, $redirectTo, $requiredAuth = 0, $useEngine = true;
 
 	/**
 	*
@@ -53,6 +51,9 @@ class Page {
 		            if (isset($useEngine)) {
 		                $this->useEngine = $useEngine;
 		            }
+		            if (isset($metaDescription)) {
+		            	$this->metaDescription = $metaDescription;
+		            }
 		        } else {
 		            $this->contents = $fileContents;
 		        }
@@ -67,10 +68,22 @@ class Page {
 			$this->savedTo = 'database';
 			$this->name = $pageVariables['name'];
 			$this->requiredAuth = $pageVariables['requiredAuth'];
+			$this->metaDescription = $pageVariables['metaDescription'];
 			if ($parsed) {
 				ob_start();
-	            eval('?>' . $pageVariables['content']);
-	            $this->contents = ob_get_clean();
+				@eval('?>' . $pageVariables['content']);
+				$result = ob_get_clean();
+				if ($result == '') {
+				    // There was an error in the code
+				    if (UsersAuth() > 2) {
+		        		$this->contents = 'The code for this page caused an error. Please review it.<br>' . eval('?>' . $pageVariables['content']);
+		        	} else {
+		        		$this->contents = 'There is an error in the code for this page. You require higher permissions to view this error.<br>';
+		        	}
+				} else {
+	            	// Display the page if there are no errors
+		            $this->contents = $result;
+		        }
 			} else {
 				$this->contents = $pageVariables['content'];
 			}

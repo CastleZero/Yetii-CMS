@@ -28,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		$error = array('fieldId' => 'newPageRequiredAuth', 'message' => 'The required auth cannot be empty and must be an integer.');
 		array_push($errors, $error);
 	}
+	$metaDescription = $_POST['metaDescription'];
 	// Get the page's code
 	$pageCode = $_POST['pageCode'];
 	if (count($errors) > 0) {
@@ -67,8 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			$pageCode = $purifier->purify($pageCode);
 			unset($purifier);
 			$mapper = new Mapper();
-			if ($mapper->SavePage($newPageURL, $newPageName, $newPageRequiredAuth, $pageCode)) {
-				echo 'Page saved! You can now <a href="/admin/pages.php?pageURL=' . $url . '">edit the page</a>.<br>';
+			if ($mapper->SavePage($newPageURL, $newPageName, $newPageRequiredAuth, $metaDescription, $pageCode)) {
+				echo 'Page saved! You can now <a href="/admin/pages.php?pageURL=' . $newPageURL . '">edit the page</a>.<br>';
 				return;
 			} else {
 				echo 'There was an error saving the page, please try again.<br>';
@@ -88,5 +89,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		$pageCode = 'Page Content';
 	}
 	CreateEditor($pageCode, 'pageCode'); ?>
+	Meta Description: <input type="text" name="metaDescription" <?php if (isset($metaDescription)) echo 'value="' . $metaDescription . '"'; ?>><br>
 	<input type="submit" value="Save New Page">
 </form>

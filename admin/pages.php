@@ -50,7 +50,7 @@ if (isset($_GET['pageURL'])) {
 				// Save the page
 				if ($savedTo == 'database') {
 					$mapper = new Mapper();
-					if ($mapper->SavePage($url, $name, $requiredAuth, $contents, $oldURL)) {
+					if ($mapper->SavePage($url, $name, $requiredAuth, $contents, $metaDescription, $oldURL)) {
 						if ($oldURL) {
 							echo 'Page URL has been updated. You can <a href="/admin/pages.php?pageURL=' . $url . '">edit the page using its new URL</a>.<br>';
 							return;

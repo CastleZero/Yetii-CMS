@@ -90,6 +90,24 @@ if ($page->useEngine) {
 			$html->find('[href]', $i)->attr['href'] = $href;
 		}
 	}
+	// Add the meta description to the header
+	$changedMetaDescription = false;
+	foreach ($html->find('meta') as $metaTag) {
+		if (array_key_exists('name', $metaTag->attr)) {
+			if ($metaTag->attr['name'] == 'description') {
+				if (array_key_exists('content', $metaTag->attr)) {
+					$metaTag->attr['content'] = $page->metaDescription;
+				} else {
+					$metaTag->attr['content'] = $page->metaDescription;
+				}
+				$changedMetaDescription = true;
+			}
+		}
+	}
+	if (!$changedMetaDescription) {
+		$totalMetaTags = count($html->find('meta'));
+		$html->find('meta', $totalMetaTags -1)->outertext = $html->find('meta', $totalMetaTags -1)->outertext . '<meta name="description" content="' . $page->metaDescription . '">';
+	}
 	// Get the elements array from the elements.ini file
 	$elements = parse_ini_file($INITemplate, true);
 	// Replace all the elements in the ini file
