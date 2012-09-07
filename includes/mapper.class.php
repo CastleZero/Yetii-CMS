@@ -22,6 +22,10 @@ class Mapper {
 	}
 
 	public function GetPage($url) {
+		if ($url == '' || $url == '/' || $url = 'index.php') {
+			// Looking for index
+			$url = 'index';
+		}
 		$stmt = $this->dbh->prepare(self::QUERY_GET_PAGE);
 		$stmt->execute(array($url));
 		$result = $stmt->fetch(PDO::FETCH_ASSOC);
