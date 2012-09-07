@@ -22,7 +22,7 @@ class Mapper {
 	}
 
 	public function GetPage($url) {
-		if ($url == '' || $url == '/' || $url = 'index.php') {
+		if ($url == '' || $url == '/' || $url == 'index.php') {
 			// Looking for index
 			$url = 'index';
 		}

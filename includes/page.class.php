@@ -6,7 +6,7 @@ class Page {
 	/**
 	*
 	* @author Joseph Duffy
-	* @version 1.2
+	* @version 1.0
 	* @var url string The URL of the page to get
 	* @var parsed bool Whether the page should be parsed, or returned in its original (code) form
 	* @return bool If the page was loaded successfully

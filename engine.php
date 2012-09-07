@@ -108,17 +108,6 @@ if ($page->useEngine) {
 		$totalMetaTags = count($html->find('meta'));
 		$html->find('meta', $totalMetaTags -1)->outertext = $html->find('meta', $totalMetaTags -1)->outertext . '<meta name="description" content="' . $page->metaDescription . '">';
 	}
-	$includeScripts = array('jquery', 'jqueryui');
-	foreach ($includeScripts as $script) {
-		switch ($script) {
-			case 'jquery':
-				$html->find('head', 0)->innertext = $html->find('head', 0)->innertext . '<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>';
-				break;
-			case 'jqueryui':
-				$html->find('head', 0)->innertext = $html->find('head', 0)->innertext . '<script src="/includes/jquery/js/jquery-ui-1.8.21.custom.min.js"></script>';
-				break;
-		}
-	}
 	// Get the elements array from the elements.ini file
 	$elements = parse_ini_file($INITemplate, true);
 	// Replace all the elements in the ini file
@@ -170,6 +159,18 @@ if ($page->useEngine) {
 			}
 		} else {
 			echo 'There was an error in the ini file for the template: An element did not have an "element" value. Please check your ini file<br>';
+		}
+	}
+	// Add required script files
+	$includeScripts = array('jquery', 'jqueryui');
+	foreach ($includeScripts as $script) {
+		switch ($script) {
+			case 'jquery':
+				$html->find('head', 0)->innertext = $html->find('head', 0)->innertext . '<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>';
+				break;
+			case 'jqueryui':
+				$html->find('head', 0)->innertext = $html->find('head', 0)->innertext . '<script src="/includes/jquery/js/jquery-ui-1.8.21.custom.min.js"></script>';
+				break;
 		}
 	}
 	// Save and display the HTML
