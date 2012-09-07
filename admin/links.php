@@ -72,23 +72,28 @@ Drag around the list below to re-order the links. Edit any links as required.<br
 	<ul id="sortableList">
 		<?php
 		$numberOfLinks = -1;
-		foreach($linksArray as $linkArray) {
-			$numberOfLinks++;
-			$order = $linkArray['order'];
-			$url = $linkArray['url'];
-			$title = $linkArray['title'];
-			$name = $linkArray['name'];
-			$requiredAuth = $linkArray['required_auth'];
-			?>
-			<li name="<?php echo $numberOfLinks; ?>">
-				<input type="number" name="<?php echo $numberOfLinks; ?>_order">
-				<label>Name <input type="text" name="<?php echo $numberOfLinks; ?>_name" value="<?php echo $name; ?>"></label>
-				<label>URL <input type="text" name="<?php echo $numberOfLinks; ?>_url" value="<?php echo $url; ?>"></label>
-				<label>Title <input type="text" name="<?php echo $numberOfLinks; ?>_title" value="<?php echo $title; ?>"></label>
-				<label>Required Auth <input type="number" name="<?php echo $numberOfLinks; ?>_requiredAuth" value="<?php echo $requiredAuth; ?>"></label>
-				<a href="javascript:DeleteLink(<?php echo $numberOfLinks; ?>);">Delete Link</a>
-			</li>
-			<?php
+		if ($linksArray !== false) {
+			// There are some links stored in the database
+			foreach($linksArray as $linkArray) {
+				$numberOfLinks++;
+				$order = $linkArray['order'];
+				$url = $linkArray['url'];
+				$title = $linkArray['title'];
+				$name = $linkArray['name'];
+				$requiredAuth = $linkArray['required_auth'];
+				?>
+				<li name="<?php echo $numberOfLinks; ?>">
+					<input type="number" name="<?php echo $numberOfLinks; ?>_order">
+					<label>Name <input type="text" name="<?php echo $numberOfLinks; ?>_name" value="<?php echo $name; ?>"></label>
+					<label>URL <input type="text" name="<?php echo $numberOfLinks; ?>_url" value="<?php echo $url; ?>"></label>
+					<label>Title <input type="text" name="<?php echo $numberOfLinks; ?>_title" value="<?php echo $title; ?>"></label>
+					<label>Required Auth <input type="number" name="<?php echo $numberOfLinks; ?>_requiredAuth" value="<?php echo $requiredAuth; ?>"></label>
+					<a href="javascript:DeleteLink(<?php echo $numberOfLinks; ?>);">Delete Link</a>
+				</li>
+				<?php
+			}
+		} else {
+			echo 'No links have been stored in the database yet.';
 		}
 		?>
 	</ul>
