@@ -10,6 +10,7 @@ class Mapper {
 	const QUERY_GET_SETTINGS = "SELECT website_name, template FROM settings LIMIT 0, 1";
 	const QUERY_GET_LINKS = "SELECT name, url, title, `order`, required_auth FROM links ORDER BY `order` ASC";
 	const QUERY_ADD_LINK = "INSERT INTO links (name, url, title, `order`, required_auth) VALUES (?, ?, ?, ?, ?)";
+	const QUERY_REGISTER_USER = "INSERT INTO users (email, password, display_name, salt, auth_level) VALUES (?, ?, ?, ?, ?)";
 	const QUERY_GET_USER_INFORMATION = "SELECT email, password, display_name, auth_level FROM users WHERE user_id = ?";
 	const QUERY_CHECK_USER_EMAIL = "SELECT salt FROM users WHERE email = ?";
 	const QUERY_CHECK_USER_INFORMATION = "SELECT user_id, auth_level, display_name FROM users WHERE email = ? AND password = ?";
@@ -148,6 +149,21 @@ class Mapper {
 			return $result['auth_level'];
 		} else {
 			return 0;
+		}
+	}
+
+	public function RegisterUser($email, $password, $displayName, $authLevel = 0) {
+		// Generate the salt
+		$salt = GenerateRandomString(22, './0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
+		if ($salt !== false) {
+			// Create the hashed and salted password
+			$password = crypt($password, '$2a$10$' . $salt);
+			$stmt = $this->dbh->prepare(self::QUERY_REGISTER_USER);
+			if ($stmt->execute(array($email, $password, $displayName, $salt, $authLevel))) {
+				return true;
+			} else {
+				return false;
+			}
 		}
 	}
 

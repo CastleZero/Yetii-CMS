@@ -437,4 +437,16 @@ function CreateEditor($contents, $id = 'codeTextbox', $editor = 'ckeditor') {
     }
 }
 
+function GenerateRandomString($length, $characters) {
+    $string = '';
+    if (strlen($characters) > 0) {
+        for ($i = 0; $i < $length; $i++) {
+            $string .= substr($characters, rand(0, strlen($characters) - 1), 1);
+        }
+        return $string;
+    } else {
+        return false;
+    }
+}
+
 ?>
