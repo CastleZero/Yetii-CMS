@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			$pageCode = $purifier->purify($pageCode);
 			unset($purifier);
 			$mapper = new Mapper();
-			if ($mapper->SavePage($newPageURL, $newPageName, $newPageRequiredAuth, $metaDescription, $pageCode)) {
+			if ($mapper->SavePage($newPageURL, $newPageName, $newPageRequiredAuth, $pageCode, $metaDescription) !== false) {
 				echo 'Page saved! You can now <a href="/admin/pages.php?pageURL=' . $newPageURL . '">edit the page</a>.<br>';
 				return;
 			} else {

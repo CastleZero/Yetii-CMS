@@ -42,15 +42,12 @@ class Mapper {
 		}
 	}
 
-	public function SavePage($url, $name, $requiredAuth, $contents, $metaDescription, $oldURL = false) {
-		if ($this->GetPage($url) !== false || $this->GetPage($oldURL) !== false) {
-			// Page already exists; update it
-			if ($oldURL !== false) {
-				// The URL of the page is being updated
-				$stmt = $this->dbh->prepare(self::QUERY_CHANGE_PAGE_URL);
-				if (!$stmt->execute(array($url, $oldURL))) {
-					return false;
-				}
+	public function SavePage($url, $name, $requiredAuth, $contents, $metaDescription, $oldURL = null) {
+		if ($oldURL) {
+			// Page URL is being updated
+			$stmt = $this->dbh->prepare(self::QUERY_CHANGE_PAGE_URL);
+			if (!$stmt->execute(array($url, $oldURL))) {
+				return false;
 			}
 			$stmt = $this->dbh->prepare(self::QUERY_UPDATE_PAGE);
 			if ($stmt->execute(array($name, $requiredAuth, $contents, $metaDescription, $url))) {
@@ -58,10 +55,18 @@ class Mapper {
 			} else {
 				return false;
 			}
-		} else {
+		} else if ($this->GetPage($url) === false) {
 			// Page is new; create it
 			$stmt = $this->dbh->prepare(self::QUERY_ADD_NEW_PAGE);
-			if ($stmt->execute(array($url, $name, $requiredAuth, $metaDescription, $contents))) {
+			if ($stmt->execute(array($url, $name, $requiredAuth, $contents, $metaDescription))) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			echo 'Updating a page<br>';
+			$stmt = $this->dbh->prepare(self::QUERY_UPDATE_PAGE);
+			if ($stmt->execute(array($name, $requiredAuth, $contents, $metaDescription, $url))) {
 				return true;
 			} else {
 				return false;

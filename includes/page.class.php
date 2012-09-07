@@ -100,6 +100,7 @@ class Page {
 				$this->header = 'HTTP/1.1 403 Forbidden';
 				$this->redirectTo = '/login.php?returnAddress=' . $url['path'];
 			}
+			return false;
 		}
 	}
 }

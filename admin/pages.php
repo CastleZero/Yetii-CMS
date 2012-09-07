@@ -9,17 +9,19 @@ if (isset($_GET['pageURL'])) {
 	if ($page->LoadPage($url, false) !== false) { // Get the page variables (unparsed)
 		$savedTo = $page->savedTo;
 		if (isset($_POST['pageURL'])) {
-			if ($url !== $_POST['pageURL']) {
+			$url = $_POST['pageURL'];
+			if ($url !== $_GET['pageURL']) {
 				// Updating the pages URL
 				$oldURL = $_GET['pageURL'];
-				if (IsPage($url) === true) {
+				$newPage = new Page();
+				if ($newPage->LoadPage($url) !== false) {
 					$error = array('fieldId' => 'pageURL', 'message' => 'The chosen URL is already taken. Please chose another URL.');
 					array_push($errors, $error);
 				}
+				unset($newPage);
 			} else {
 				$oldURL = false;
 			}
-			$url = $_POST['pageURL'];
 		} else {
 			$url = $page->url;
 		}
