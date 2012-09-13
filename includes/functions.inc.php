@@ -69,7 +69,7 @@ function IsPage($url) {
 * 
 *
 * @author Joseph Duffy
-* @version 1.1
+* @version 1.0
 * @var pageURL string The URL of the page to get
 * @var parsed bool Whether or not the page should be parsed, or returned in its original form
 * @return array
@@ -169,7 +169,7 @@ function write_ini_file($assoc_arr, $path, $has_sections=FALSE) {
 * Get all the available snippets in the snippets folder and returns them. It also checks if a snippet is valid
 *
 * @author Joseph Duffy
-* @version 1.1
+* @version 1.0
 * @return array 
 */
 function GetSnippets() {
@@ -178,45 +178,18 @@ function GetSnippets() {
     foreach ($directories as $directory) {
         if (is_dir($directory)) {
             $baseName = str_replace(SNIPPETSFOLDER, '', $directory);
-            if (is_file($directory . '/variables.ini')) {
-                if (is_file($directory .  '/index.php')) {
-                    $files = glob($directory . '/*.ini');
-                    foreach ($files as $file) {
-                        $fileName = str_replace($directory, '', $file);
-                        if ($fileName == '/index.ini' || $fileName == '/variables.ini') {
-                            $name = $baseName;
-                        } else {
-                            $name = $baseName . $fileName;
-                        }
-                        if (count($files) > 1) {
-                            if ($fileName != '/variables.ini') {
-                                $snippet = array('name' => $name, 'valid' => true, 'dynamic' => true);
-                                array_push($snippets, $snippet);
-                            }
-                        } else {
-                            // Only 1 ini file exists, so the snippet it invalid
-                            $snippet = array('name' => $name, 'valid' => 'No custom pages exists.', 'dynamic' => true);
-                            array_push($snippets, $snippet);
-                        }
-                    }
+            if (is_file($directory . '/index.php')) {
+                $valid = true;
+                if (is_file($directory . '/config.php')) {
+                    $dynamic = true;
                 } else {
-                    $valid = 'A variables.ini file was present but no index.php was present.';
-                    $snippet = array('name' => $name, 'valid' => $valid, 'dynamic' => true);
-                    array_push($snippets, $snippet);
+                    $dynamic = false;
                 }
             } else {
-                $files = glob($directory . '/*.php');
-                foreach ($files as $file) {
-                    $fileName = str_replace($directory, '', $file);
-                    if ($fileName == '/index.php') {
-                        $name = $baseName;
-                    } else {
-                        $name = $baseName . $fileName;
-                    }
-                    $snippet = array('name' => $name, 'valid' => true, 'dynamic' => false);
-                    array_push($snippets, $snippet);
-                }
+                $valid = false;
             }
+            $snippet = array('name' => $baseName, 'valid' => $valid, 'dynamic' => $dynamic);
+            array_push($snippets, $snippet);
         }
     }
     return $snippets;
@@ -226,11 +199,11 @@ function GetSnippets() {
 * Checks if a snippet is valid, and then displays the snippet if it is
 *
 * @author Joseph Duffy
-* @version 1.1.1
+* @version 1.0
 * @return string
 */
 
-function GetSnippet($snippet, $parsed = true) {
+function GetSnippet($snippet, $variables = array(), $parsed = true) {
     $snippetLocation = SNIPPETSFOLDER . $snippet;
     if (is_dir($snippetLocation)) {
         // The snippets folder was provided, check for an index file
@@ -276,6 +249,7 @@ function GetSnippet($snippet, $parsed = true) {
             extract($snippetVariables);
         }
         ob_start();
+        extract($variables);
         include($snippetFile);
         $snippet = ob_get_clean();
     } else {
@@ -368,7 +342,6 @@ function Move($old, $new, $delete = false) {
         }
     } else if (is_file($old)) {
         // Object to be moved is a file
-        //echo 'Copying "' . $old . '" to "' . $new . '"<br>';
         if (!copy($old, $new)) {
             $error = array('message' => 'There was an error moving "' . $old . '" to "' . $new .'". This may cause the template to not function correctly, and should be looked into.');
             array_push($errors, $error);
@@ -377,8 +350,6 @@ function Move($old, $new, $delete = false) {
             return true;
         }
     } else {
-        // $error = array('message' => $old . ' is not a file or a directory, please check your value.');
-        // array_push($errors, $error);
         echo $old . ' is not a file or a directory, please check your value.<br>';
     }
     if ($delete) {

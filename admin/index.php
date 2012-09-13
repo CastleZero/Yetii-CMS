@@ -2,25 +2,8 @@
 $pageName = 'Admin Area';
 $requiredAuth = 3;
 ?>
-<ul>
-	<a href="/admin/links.php">
-		<li>
-			Links
-		</li>
-	</a>
-	<a href="/admin/pages.php">
-		<li>
-			Pages
-		</li>
-	</a>
-	<a href="/admin/snippets.php">
-		<li>
-			Snippets
-		</li>
-	</a>
-	<a href="/admin/addnewtemplate.php">
-		<li>
-			Add New Template
-		</li>
-	</a>
-</ul>
+<a href="<?php echo ROOTFOLDER . ADMINFOLDER; ?>links.php">Links</a><br>
+<a href="<?php echo ROOTFOLDER . ADMINFOLDER; ?>pages.php">Pages</a><br>
+<a href="<?php echo ROOTFOLDER . ADMINFOLDER; ?>snippets.php">Snippets</a><br>
+<a href="<?php echo ROOTFOLDER . ADMINFOLDER; ?>images/">Manage Images</a><br>
+<a href="<?php echo ROOTFOLDER . ADMINFOLDER; ?>addnewtemplate.php">Add New Template</a><br>

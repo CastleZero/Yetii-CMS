@@ -73,15 +73,14 @@ if (isset($_GET['snippet'])) {
 				?>
 				<tr>
 					<td><?php echo $snippet['name']; ?></td>
-					<td><?php
-					if ($snippet['valid'] === true) {
-						echo 'Yes';
-					} else {
-						echo 'No; ' . $snippet['valid'];
-					}
-					?></td>
-					<th><?php echo $snippet['dynamic'] == true ? 'Yes' : 'No'; ?>
-					<td><a href="?snippet=<?php echo $snippet['name']; ?>" title="Edit this snippet">Edit Snippet</a></td>
+					<td><?php echo $snippet['valid'] == true ? 'Yes' : 'No'; ?></td>
+					<td><?php echo $snippet['dynamic'] == true ? 'Yes' : 'No'; ?></td>
+					<td><?php if ($snippet['dynamic'] == true) {
+						?> <a href="<?php echo SNIPPETSFOLDER . $snippet['name'] . '/config.php' ?>">Edit Snippet</a>
+					<?php } else { ?>
+						<a href="?snippet=<?php echo $snippet['name']; ?>" title="Edit this snippet">Edit Snippet</a>
+					<?php } ?>
+					</td>
 				</tr>
 				<?php
 			}

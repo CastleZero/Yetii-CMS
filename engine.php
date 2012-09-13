@@ -169,7 +169,7 @@ if ($page->useEngine) {
 				$html->find('head', 0)->innertext = $html->find('head', 0)->innertext . '<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>';
 				break;
 			case 'jqueryui':
-				$html->find('head', 0)->innertext = $html->find('head', 0)->innertext . '<script src="/includes/jquery/js/jquery-ui-1.8.21.custom.min.js"></script>';
+				$html->find('head', 0)->innertext = $html->find('head', 0)->innertext . '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>';
 				break;
 		}
 	}
