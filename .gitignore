@@ -1,4 +1,4 @@
 *.log
 config.inc.php
 _maintenance
-images/
+/images/
