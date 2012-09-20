@@ -26,6 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 Choose an image to upload to the images folder (<?php echo IMAGESFOLDER; ?>). The maximum upload size is <?php echo $uploadLimit; ?>.<br>
+It is recommended you use .jpg for photos and .png or .gif for other images. Remember that large images take a long time to load, so make them as small as you can.<br>
+It can also help to run it through an <a href="http://www.smushit.com/ysmush.it/" target="_blank">image compressor</a>.<br>
 <form method="POST" enctype="multipart/form-data">
 	<input type="file" name="uploadedImage"><br>
 	<input type="submit" value="Upload"><br>

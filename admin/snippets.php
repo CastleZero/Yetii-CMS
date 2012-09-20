@@ -76,7 +76,7 @@ if (isset($_GET['snippet'])) {
 					<td><?php echo $snippet['valid'] == true ? 'Yes' : 'No'; ?></td>
 					<td><?php echo $snippet['dynamic'] == true ? 'Yes' : 'No'; ?></td>
 					<td><?php if ($snippet['dynamic'] == true) {
-						?> <a href="<?php echo SNIPPETSFOLDER . $snippet['name'] . '/config.php' ?>">Edit Snippet</a>
+						?> <a href="<?php echo ROOTFOLDER . SNIPPETSFOLDER . $snippet['name'] . '/config.php' ?>">Edit Snippet</a>
 					<?php } else { ?>
 						<a href="?snippet=<?php echo $snippet['name']; ?>" title="Edit this snippet">Edit Snippet</a>
 					<?php } ?>

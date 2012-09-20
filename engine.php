@@ -11,6 +11,22 @@ require_once('includes/simple_html_dom.php'); /* Used to manipulate the supplied
 require_once('includes/mapper.class.php'); /* Contains the mapper class used to connect to the database */
 require_once('includes/functions.inc.php'); /* Contains various functions used around the site */
 require_once('includes/page.class.php'); /* Contains the page class used to create a page */
+// Disable magic quotes gpc
+if (get_magic_quotes_gpc()) {
+    $process = array(&$_GET, &$_POST, &$_COOKIE, &$_REQUEST);
+    while (list($key, $val) = each($process)) {
+        foreach ($val as $k => $v) {
+            unset($process[$key][$k]);
+            if (is_array($v)) {
+                $process[$key][stripslashes($k)] = $v;
+                $process[] = &$process[$key][stripslashes($k)];
+            } else {
+                $process[$key][stripslashes($k)] = stripslashes($v);
+            }
+        }
+    }
+    unset($process);
+}
 // Get the page name
 if (isset($_GET['page'])) {
 	// Get the page name from the supplied GET value

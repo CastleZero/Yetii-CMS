@@ -62,11 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			}
 		} else {
 			// Save the page to the database
-			require_once 'includes/htmlpurifier/library/HTMLPurifier.auto.php';
-			$config = HTMLPurifier_Config::createDefault();
-			$purifier = new HTMLPurifier($config);
-			$pageCode = $purifier->purify($pageCode);
-			unset($purifier);
 			$mapper = new Mapper();
 			if ($mapper->SavePage($newPageURL, $newPageName, $newPageRequiredAuth, $pageCode, $metaDescription) !== false) {
 				echo 'Page saved! You can now <a href="/admin/pages.php?pageURL=' . $newPageURL . '">edit the page</a>.<br>';
