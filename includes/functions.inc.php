@@ -420,4 +420,13 @@ function GenerateRandomString($length, $characters) {
     }
 }
 
+function GetMaxUploadSize() {
+    $values = array();
+    $values['maxUpload'] = ini_get('upload_max_filesize');
+    $values['maxPost'] = ini_get('post_max_size');
+    $values['memoryLimit'] = ini_get('memory_limit');
+    $values['uploadLimit'] = min(preg_replace("/[^0-9]/", '', $values['maxUpload']), preg_replace("/[^0-9]/", '', $values['maxPost']), preg_replace("/[^0-9]/", '', $values['memoryLimit'])) . 'M';
+    return $values;
+}
+
 ?>

@@ -194,6 +194,6 @@ if ($page->useEngine) {
 	echo $html;
 } else {
 	// Page being loaded does not need to use the engine
-	echo $pageContents;
+	echo $page->contents;
 }
 ?>

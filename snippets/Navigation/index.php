@@ -24,7 +24,7 @@ if ($linksArray !== false) {
 	foreach($linksArray as $linkArray) {
 		if ($linkArray['order'] >= 0) {
 			if ($linkArray['required_auth'] <= UsersAuth()) {
-				$links .= '<li style="width: ' . $linkWidth . '%; margin: 0 ' . $linkPadding . '%; color: ' . $textColor . ';"><a href="' . $linkArray['url'] . '" title="' . $linkArray['title'] . '">' . $linkArray['name'] . '</a></li>';
+				$links .= '<li style="width: ' . $linkWidth . '%; margin: 0 ' . $linkPadding . '%; color: ' . $textColor . ';"><a href="' . ROOTURL . $linkArray['url'] . '" title="' . $linkArray['title'] . '">' . $linkArray['name'] . '</a></li>';
 				if ($textColor == 'orange') {
 					$textColor = 'blue';
 				} else {
