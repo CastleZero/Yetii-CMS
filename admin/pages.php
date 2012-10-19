@@ -141,7 +141,7 @@ if (isset($_GET['pageURL'])) {
 	// Not editing a new page, display all pages and the option to create a new page
 	?>
 	All URLs are relative to the websites root address (do not add a "/" to the start).<br>
-	<a href="/admin/newpage.php"><input type="button" value="Create New Page"></a>
+	<a href="newpage.php"><input type="button" value="Create New Page"></a>
 	<form method="GET">
 		Edit Page With URL: <input type="text" name="pageURL" id="pageURL">
 		<input type="submit" value="Edit Page">

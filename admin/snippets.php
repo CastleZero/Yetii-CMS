@@ -5,7 +5,7 @@ $snippets = GetSnippets();
 if (isset($_GET['snippet'])) {
 	// Editing snippet
 	$snippet = $_GET['snippet'];
-	$snippet = GetSnippet($snippet, false);
+	$snippet = GetSnippet($snippet, array(), false);
 	if ($snippet !== false) {
 		$snippetLocation = $snippet['location'];
 		$snippetCode = $snippet['code'];

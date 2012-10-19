@@ -100,9 +100,9 @@ if ($page->useEngine) {
 	for ($i = 0; $i < count($includedTemplateFiles); $i++) {
 		$link = $includedTemplateFiles[$i];
 		$href = $link->attr['href'];
-		if (substr($href, 0, 1) != '/') {
+		if (substr($href, 0, 1) != '/' && substr($href, 0, 4) != 'http') {
 			// Only replace files that are relative to the template folder
-			$href = '/' . $templateFolder . '/' . $href;
+			$href = ROOTURL . $templateFolder . $href;
 			$html->find('[href]', $i)->attr['href'] = $href;
 		}
 	}

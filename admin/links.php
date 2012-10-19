@@ -28,7 +28,7 @@
 		UpdateNewPositions();
 
 		$('#addNewLink').click(function() {
-			$('#sortableList').append('<li name="' + numberOfLinks + '"><input type="number" name="' + numberOfLinks + '_order" value=""><label> Name <input type="text" name="' + numberOfLinks + '_name" value="New Link ' + numberOfLinks + '"></label><label> URL <input type="text" name="' + numberOfLinks + '_url"></label><label> Title <input type="text" name="' + numberOfLinks + '_title"></label><label> Required Auth <input type="number" name="' + numberOfLinks + '_requiredAuth" value="0"></label> <a href="javascript:DeleteLink(' + numberOfLinks + ');">Delete Link</a></li>');
+			$('#sortableList').append('<li name="' + numberOfLinks + '"><input type="number" name="' + numberOfLinks + '_order" value=""><label> Name <input type="text" name="' + numberOfLinks + '_name" value="New Link ' + numberOfLinks + '"></label><label> URL: <label>Use Root (<?php echo ROOTURL; ?>)<input type="checkbox" name="' + numberOfLinks + '_useRoot" checked="checked"><input type="text" name="' + numberOfLinks + '_url"></label><label> Title <input type="text" name="' + numberOfLinks + '_title"></label><label> Required Auth <input type="number" name="' + numberOfLinks + '_requiredAuth" value="0"></label> <a href="javascript:DeleteLink(' + numberOfLinks + ');">Delete Link</a></li>');
 			UpdateNewPositions();
 		});
 	});
@@ -47,6 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			$links[$linkOrder]['title'] = $_POST[$linkNumber . '_title'];
 			$links[$linkOrder]['order'] = $_POST[$linkNumber . '_order'];
 			$links[$linkOrder]['required_auth'] = $_POST[$linkNumber . '_requiredAuth'];
+			$links[$linkOrder]['use_root'] = isset($_POST[$linkNumber . '_useRoot']) ? true : false;
 			$numberOfLinks--;
 		}
 		$linkNumber++;
@@ -78,6 +79,7 @@ Drag around the list below to re-order the links. Edit any links as required.<br
 				$numberOfLinks++;
 				$order = $linkArray['order'];
 				$url = $linkArray['url'];
+				$useRoot = $linkArray['use_root'];
 				$title = $linkArray['title'];
 				$name = $linkArray['name'];
 				$requiredAuth = $linkArray['required_auth'];
@@ -85,7 +87,7 @@ Drag around the list below to re-order the links. Edit any links as required.<br
 				<li name="<?php echo $numberOfLinks; ?>">
 					<input type="number" name="<?php echo $numberOfLinks; ?>_order">
 					<label>Name <input type="text" name="<?php echo $numberOfLinks; ?>_name" value="<?php echo $name; ?>"></label>
-					<label>URL <input type="text" name="<?php echo $numberOfLinks; ?>_url" value="<?php echo $url; ?>"></label>
+					<label>URL: <label>Use Root (<?php echo ROOTURL; ?>) <input type="checkbox" name="<?php echo $numberOfLinks; ?>_useRoot" <?php if ($useRoot) echo 'checked="checked"'; ?>></label><input type="text" name="<?php echo $numberOfLinks; ?>_url" value="<?php echo $url; ?>"></label>
 					<label>Title <input type="text" name="<?php echo $numberOfLinks; ?>_title" value="<?php echo $title; ?>"></label>
 					<label>Required Auth <input type="number" name="<?php echo $numberOfLinks; ?>_requiredAuth" value="<?php echo $requiredAuth; ?>"></label>
 					<a href="javascript:DeleteLink(<?php echo $numberOfLinks; ?>);">Delete Link</a>

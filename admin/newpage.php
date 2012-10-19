@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 ?>
 <form method="POST">
 	Save to file (NOT recommended): <input type="checkbox" name="saveToFile" <?php if (isset($saveToFile) && $saveToFile === true) echo 'checked="checked"'; ?>><br>
-	New Page URL: /<input type="text" name="newPageURL" <?php if (isset($newPageURL)) echo 'value="' . $newPageURL . '"'; ?> required="required"><br>
+	New Page URL: <?php echo ROOTURL; ?><input type="text" name="newPageURL" <?php if (isset($newPageURL)) echo 'value="' . $newPageURL . '"'; ?> required="required"><br>
 	Page Name = <input type="text" name="pageName" <?php if (isset($newPageName)) echo 'value="' . $newPageName . '"'; ?> required="required"><br>
 	Page Required Auth = <input type="number" name="newPageRequiredAuth" <?php if (isset($newPageRequiredAuth)) echo 'value="' . $newPageRequiredAuth . '"'; else echo 'value="0"'; ?> required="required"><br>
 	Page Content

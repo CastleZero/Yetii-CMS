@@ -8,8 +8,8 @@ class Mapper {
 	const QUERY_GET_PAGES = "SELECT page_url FROM pages";
 	const QUERY_GET_SNIPPET_VARIABLES = "SELECT variables FROM snippets WHERE snippet_name = ?";
 	const QUERY_GET_SETTINGS = "SELECT website_name, template FROM settings LIMIT 0, 1";
-	const QUERY_GET_LINKS = "SELECT name, url, title, `order`, required_auth FROM links ORDER BY `order` ASC";
-	const QUERY_ADD_LINK = "INSERT INTO links (name, url, title, `order`, required_auth) VALUES (?, ?, ?, ?, ?)";
+	const QUERY_GET_LINKS = "SELECT name, url, title, `order`, required_auth, use_root FROM links ORDER BY `order` ASC";
+	const QUERY_ADD_LINK = "INSERT INTO links (name, url, title, `order`, required_auth, use_root) VALUES (?, ?, ?, ?, ?, ?)";
 	const QUERY_REGISTER_USER = "INSERT INTO users (email, password, display_name, salt, auth_level) VALUES (?, ?, ?, ?, ?)";
 	const QUERY_GET_USER_INFORMATION = "SELECT email, password, display_name, auth_level FROM users WHERE user_id = ?";
 	const QUERY_CHECK_USER_EMAIL = "SELECT salt FROM users WHERE email = ?";
@@ -141,7 +141,7 @@ class Mapper {
 
 	public function AddLink($link) {
 		$stmt = $this->dbh->prepare(self::QUERY_ADD_LINK);
-		if ($stmt->execute(array($link['name'], $link['url'], $link['title'], $link['order'], $link['required_auth']))) {
+		if ($stmt->execute(array($link['name'], $link['url'], $link['title'], $link['order'], $link['required_auth'], $link['use_root']))) {
 			return true;
 		} else {
 			var_dump($this->dbh->errorInfo());

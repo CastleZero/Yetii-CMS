@@ -14,26 +14,25 @@ if ($linksArray !== false) {
 			}
 		}
 	}
-	if ($numberOfLinks < 5) {
-		$numberOfLinks = 5;
+	if ($numberOfLinks < 3) {
+		$numberOfLinks = 3;
 	}
-	$linkWidth = 90/$numberOfLinks;
-	$linkPadding = (10/$numberOfLinks)/2;
-	$textColor = 'orange';
+	$linkWidth = 100/$numberOfLinks;
+	$linkPadding = (15/$numberOfLinks)/2;
 	// Create a string with all the links as list items
 	foreach($linksArray as $linkArray) {
 		if ($linkArray['order'] >= 0) {
 			if ($linkArray['required_auth'] <= UsersAuth()) {
-				$links .= '<li style="width: ' . $linkWidth . '%; margin: 0 ' . $linkPadding . '%; color: ' . $textColor . ';"><a href="' . ROOTURL . $linkArray['url'] . '" title="' . $linkArray['title'] . '">' . $linkArray['name'] . '</a></li>';
-				if ($textColor == 'orange') {
-					$textColor = 'blue';
+				if ($linkArray['use_root']) {
+					$linkURL = ROOTURL . $linkArray['url'];
 				} else {
-					$textColor = 'orange';
+					$linkURL = $linkArray['url'];
 				}
+				$links .= '<li style="width: ' . $linkWidth . '%;"><a href="' . $linkURL . '" title="' . $linkArray['title'] . '">' . $linkArray['name'] . '</a></li>';
 			}
 		}
 	}
-	echo '<ul>' . $links . '</ul>';
+	echo '<ul class="clearfix">' . $links . '</ul>';
 } else {
 	echo 'No links stored in the database';
 }

@@ -374,7 +374,7 @@ function CreateEditor($contents, $id = 'codeTextbox', $editor = 'ckeditor') {
         // Create a class instance.
         $CKEditor = new CKEditor();
         // Path to the CKEditor directory, ideally use an absolute path instead of a relative dir.
-        $CKEditor->basePath = '/includes/ckeditor/';
+        $CKEditor->basePath = ROOTURL . 'includes/ckeditor/';
         // Create the config
         $config['toolbar'] = array(
             array( 'Source','-',
