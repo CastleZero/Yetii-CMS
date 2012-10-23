@@ -2,3 +2,7 @@
 config.inc.php
 _maintenance
 /images/
+/snippets/Music
+/snippets/Videos
+/temp/
+lists.example.php

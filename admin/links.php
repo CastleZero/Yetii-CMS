@@ -1,3 +1,7 @@
+<?php
+$pageName = 'Edit navigation links';
+$requiredAuth = 3;
+?>
 <script>
 	function UpdateNewPositions() {
 		numberOfLinks = 0;

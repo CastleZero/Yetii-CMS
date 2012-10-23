@@ -429,4 +429,48 @@ function GetMaxUploadSize() {
     return $values;
 }
 
+function IsLatestVersion() {
+    if ($latestVersion = GetLatestVersionNumber()) {
+        if (VERSION < $latestVersion) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+}
+
+function GetLatestVersionNumber() {
+    $latestVersionFile = fopen('http://yetii.net/channels/' . VERSIONCHANNEL . '/version.latest', 'r');
+    if ($latestVersionFile) {
+        $latestVersion = fgets($latestVersionFile);
+        fclose($latestVersionFile);
+        return $latestVersion;
+    } else {
+        echo 'There was an error checking for updates. Please try again.<br>';
+    }
+}
+
+function RemoveDirectory($dir) {
+    if (is_dir($dir)) {
+        if (substr($dir, -1, 1) == '/') {
+        } else {
+            $dir = $dir . '/';
+        }
+        $results = scandir($dir);
+        foreach ($results as $result) {
+            if ($result == '.' || $result == '..') {
+                // Don't do anything
+            } else if (is_dir($dir . $result)) {
+                RemoveDirectory($dir . $result);
+            } else {
+                unlink($dir . $result);
+            }
+        }
+        rmdir($dir);
+        return true;
+    } else {
+        return false;
+    }
+}
+
 ?>

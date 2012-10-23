@@ -27,6 +27,13 @@ if (get_magic_quotes_gpc()) {
     }
     unset($process);
 }
+$mapper = new Mapper();
+$settings = $mapper->GetSettings();
+define('WEBSITENAME', $settings['websiteName']);
+define('VERSION', $settings['version']);
+define('VERSIONCHANNEL', $settings['versionChannel']);
+define('TEMPLATE', $settings['template']);
+define('LANGUAGE', $settings['language']);
 // Get the page name
 if (isset($_GET['page'])) {
 	// Get the page name from the supplied GET value

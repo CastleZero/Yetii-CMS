@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'Create New Page';
+$pageName = 'Create New Page';
 $requiredAuth = 3;
 $errors = array();
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {

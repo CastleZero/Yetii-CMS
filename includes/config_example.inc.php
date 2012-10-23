@@ -12,10 +12,7 @@ define('PAGESFOLDER', 'pages/');
 define('TEMPLATESFOLDER', 'templates/');
 define('SNIPPETSFOLDER', 'snippets/');
 define('IMAGESFOLDER', 'images/');
+define('TEMPDIRECTORY', 'temp/');
 define('ROOTFOLDER', ROOTURL); // Legacy support
 
-// Define others
-define('WEBSITENAME', 'My Website Name');
-define('TEMPLATE', 'default');
-define('LANGUAGE', 'en_gb');
 ?>

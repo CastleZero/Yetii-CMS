@@ -1,13 +1,13 @@
 <?php
 
 class Mapper {
+	const QUERY_GET_SETTINGS = "SELECT website_name, version, version_channel, template, language FROM settings";
 	const QUERY_GET_PAGE = "SELECT page_name, required_auth, page_content, meta_description FROM pages WHERE page_url = ?";
 	const QUERY_CHANGE_PAGE_URL = "UPDATE pages SET page_url = ? WHERE page_url = ?";
 	const QUERY_ADD_NEW_PAGE = "INSERT INTO pages (page_url, page_name, required_auth, page_content, meta_description) VALUES (?, ?, ?, ?, ?)";
 	const QUERY_UPDATE_PAGE = "UPDATE pages SET page_name = ?, required_auth = ?, page_content = ?, meta_description = ? WHERE page_url = ?";
 	const QUERY_GET_PAGES = "SELECT page_url FROM pages";
 	const QUERY_GET_SNIPPET_VARIABLES = "SELECT variables FROM snippets WHERE snippet_name = ?";
-	const QUERY_GET_SETTINGS = "SELECT website_name, template FROM settings LIMIT 0, 1";
 	const QUERY_GET_LINKS = "SELECT name, url, title, `order`, required_auth, use_root FROM links ORDER BY `order` ASC";
 	const QUERY_ADD_LINK = "INSERT INTO links (name, url, title, `order`, required_auth, use_root) VALUES (?, ?, ?, ?, ?, ?)";
 	const QUERY_REGISTER_USER = "INSERT INTO users (email, password, display_name, salt, auth_level) VALUES (?, ?, ?, ?, ?)";
@@ -19,6 +19,20 @@ class Mapper {
 	
 	public function __construct() {
 		$this->dbh = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASS);
+	}
+
+	public function GetSettings() {
+		$stmt = $this->dbh->prepare(self::QUERY_GET_SETTINGS);
+		$stmt->execute();
+		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+		$settings = array(
+			'websiteName' => $result['website_name'],
+			'version' => $result['version'],
+			'versionChannel' => $result['version_channel'],
+			'template' => $result['template'],
+			'language' => $result['language']
+		);
+		return $settings;
 	}
 
 	public function GetPage($url) {
@@ -96,23 +110,6 @@ class Mapper {
 			$stmt->execute();
 			$pages = $stmt->fetchAll();
 			return $pages;
-		} else {
-			return false;
-		}
-	}
-
-	public function GetSettings() {
-		$stmt = $this->dbh->prepare(self::QUERY_GET_SETTINGS);
-		$stmt->execute();
-		if ($stmt->fetchColumn() !== false) {
-			$stmt = $this->dbh->prepare(self::QUERY_GET_SETTINGS);
-			$stmt->execute();
-			$result = $stmt->fetch(PDO::FETCH_ASSOC);
-			$settingsArray = array(
-								'websiteName' => $result['website_name'],
-								'template' => $result['template']
-								);
-			return $settingsArray;
 		} else {
 			return false;
 		}
