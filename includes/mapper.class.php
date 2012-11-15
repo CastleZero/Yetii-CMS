@@ -160,7 +160,7 @@ class Mapper {
 
 	public function RegisterUser($email, $password, $displayName, $authLevel = 0) {
 		// Generate the salt
-		$salt = GenerateRandomString(22, './0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
+		$salt = generateRandomString(22, './0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
 		if ($salt !== false) {
 			// Create the hashed and salted password
 			$password = crypt($password, '$2a$10$' . $salt);

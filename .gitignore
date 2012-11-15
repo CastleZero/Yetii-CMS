@@ -6,3 +6,5 @@ _maintenance
 /snippets/Videos
 /temp/
 lists.example.php
+install*.php
+*.scss

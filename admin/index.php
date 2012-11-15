@@ -14,8 +14,7 @@ if ($isLatestVersion === true) {
 }
 ?>
 <h2>Manage</h2>
-<a href="<?php echo ROOTFOLDER . ADMINFOLDER; ?>links.php">Links</a><br>
-<a href="<?php echo ROOTFOLDER . ADMINFOLDER; ?>pages.php">Pages</a><br>
-<a href="<?php echo ROOTFOLDER . ADMINFOLDER; ?>snippets.php">Snippets</a><br>
-<a href="<?php echo ROOTFOLDER . ADMINFOLDER; ?>images/">Manage Images</a><br>
-<a href="<?php echo ROOTFOLDER . ADMINFOLDER; ?>addnewtemplate.php">Add New Template</a><br>
+<a href="<?php echo ROOTURL . ADMINFOLDER; ?>pages.php">Pages</a><br>
+<a href="<?php echo ROOTURL . ADMINFOLDER; ?>snippets.php">Snippets</a><br>
+<a href="<?php echo ROOTURL . ADMINFOLDER; ?>images/">Manage Images</a><br>
+<a href="<?php echo ROOTURL . ADMINFOLDER; ?>addnewtemplate.php">Add New Template</a><br>

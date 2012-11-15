@@ -7,17 +7,6 @@ function ShowErrors($errors) {
         <ul>
             <?php
             for ($i = 0; $i < count($errors); $i++) {
-                if (isset($errors[$i]['fieldId'])) {
-                    // Highlight the field
-                    ?>
-                    <script>
-                        var cross = '<img src="images/cross.png">';
-                        $(document).ready(function(){
-                            $("#<?php echo $errors[$i]['fieldId']; ?>hint").html(cross);
-                        });
-                    </script>
-                    <?php
-                }
                 ?>
                 <li>
                     <?php echo $errors[$i]['message']; ?><br >
@@ -27,6 +16,30 @@ function ShowErrors($errors) {
             ?>
         </ul>
     </div>
+    <?php
+}
+
+function crossField($fieldName, $errorMessage = '') {
+    // Field is invalid, put a cross next to it
+    ?>
+    <script>
+        var cross = '<img src="images/cross.png" alt="<?php echo $errorMessage; ?>">';
+        $(document).ready(function(){
+            $('[name="<?php echo $fieldName; ?>"]').after(cross);
+        });
+    </script>
+    <?php
+}
+
+function tickField($fieldName) {
+    // Field is valid, put a tick next to it
+    ?>
+    <script>
+        var tick = '<img src="images/tick.png">';
+        $(document).ready(function(){
+            $('[name="<?php echo $fieldName; ?>"]').after(tick);
+        });
+    </script>
     <?php
 }
 
@@ -177,18 +190,9 @@ function GetSnippets() {
     $directories = glob(SNIPPETSFOLDER . '*');
     foreach ($directories as $directory) {
         if (is_dir($directory)) {
-            $baseName = str_replace(SNIPPETSFOLDER, '', $directory);
-            if (is_file($directory . '/index.php')) {
-                $valid = true;
-                if (is_file($directory . '/config.php')) {
-                    $dynamic = true;
-                } else {
-                    $dynamic = false;
-                }
-            } else {
-                $valid = false;
-            }
-            $snippet = array('name' => $baseName, 'valid' => $valid, 'dynamic' => $dynamic);
+            $snippetName = str_replace(SNIPPETSFOLDER, '', $directory);
+            $snippet = new Snippet();
+            $snippet->load($snippetName);
             array_push($snippets, $snippet);
         }
     }
@@ -203,7 +207,7 @@ function GetSnippets() {
 * @return string
 */
 
-function GetSnippet($snippet, $variables = array(), $parsed = true) {
+function GetSnippetLegacy($snippet, $variables = array(), $parsed = true) {
     $snippetLocation = SNIPPETSFOLDER . $snippet;
     if (is_dir($snippetLocation)) {
         // The snippets folder was provided, check for an index file
@@ -269,6 +273,12 @@ function GetSnippet($snippet, $variables = array(), $parsed = true) {
         }
     }
     return $snippet;
+}
+
+function getSnippet($snippetName, $variables = array()) {
+    $snippet = new Snippet;
+    $snippet->load($snippetName, false, $variables);
+    return $snippet->getContents();
 }
 
 /**
@@ -408,7 +418,7 @@ function CreateEditor($contents, $id = 'codeTextbox', $editor = 'ckeditor') {
     }
 }
 
-function GenerateRandomString($length, $characters) {
+function generateRandomString($length, $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ') {
     $string = '';
     if (strlen($characters) > 0) {
         for ($i = 0; $i < $length; $i++) {

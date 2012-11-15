@@ -6,11 +6,22 @@ if (is_file('maintenance')) {
 	echo file_get_contents('maintenance');
 	exit;
 }
-require_once('includes/config.inc.php'); /* Database connection */
+if (!is_file('includes/config.inc.php')) {
+	if ($_GET['page'] == 'install.php') {
+		echo eval('?>' . file_get_contents('install.php'));
+	} else {
+		header('Location: install.php');
+		echo 'No config file was found. Please <a href="install.php">install Yetii CMS</a>.<br>';
+	}
+	exit;
+} else {
+	require_once('includes/config.inc.php'); /* Database connection */
+}
 require_once('includes/simple_html_dom.php'); /* Used to manipulate the supplied template */
 require_once('includes/mapper.class.php'); /* Contains the mapper class used to connect to the database */
 require_once('includes/functions.inc.php'); /* Contains various functions used around the site */
 require_once('includes/page.class.php'); /* Contains the page class used to create a page */
+require_once('includes/snippet.class.php'); /* Contains the class used to display snippets */
 // Disable magic quotes gpc
 if (get_magic_quotes_gpc()) {
     $process = array(&$_GET, &$_POST, &$_COOKIE, &$_REQUEST);
@@ -109,7 +120,7 @@ if ($page->useEngine) {
 		$href = $link->attr['href'];
 		if (substr($href, 0, 1) != '/' && substr($href, 0, 4) != 'http') {
 			// Only replace files that are relative to the template folder
-			$href = ROOTURL . $templateFolder . $href;
+			$href = ROOTURL . INSTALLURL . $templateFolder . $href;
 			$html->find('[href]', $i)->attr['href'] = $href;
 		}
 	}
@@ -152,8 +163,11 @@ if ($page->useEngine) {
 				}
 			} else if (array_key_exists('snippet', $element)) {
 				// Replace an element with a snippet
-				$snippet = $element['snippet'];
-				$fillContent = GetSnippet($snippet);
+				$snippetName = $element['snippet'];
+				$snippet = new Snippet();
+				$snippet->load($snippetName);
+				$fillContent = $snippet->getContents();
+				unset($snippet);
 			} else {
 				// No valid replacement was found
 				echo 'There was an error in the ini file for the template; "' . $elementName . '" did not have a value to be filled with.<br>';
