@@ -4,7 +4,7 @@ _maintenance
 /images/
 /snippets/Music
 /snippets/Videos
-/temp/
+.temp/
 lists.example.php
 install*.php
 *.scss

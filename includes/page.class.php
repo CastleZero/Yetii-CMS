@@ -18,7 +18,7 @@ class Page {
 		unset($mapper);
 		if ($pageVariables === false) {
 			// Page was not found in the database, check for a file with that url
-		    if (ROOTURL != INSTALLURL) {
+		    if (INSTALLURL !== '') {
 		    	// Yetii is not installed in the website root
 		    	if (strpos($this->url, INSTALLURL) === 0) {
 		    		// URL is a Yetii URL (e.g. not admin), remove the INSTALLURL
