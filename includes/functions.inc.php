@@ -373,10 +373,6 @@ function Move($old, $new, $delete = false) {
     }
 }
 
-function DeleteDirectory($directory) {
-    return false;
-}
-
 function CreateEditor($contents, $id = 'codeTextbox', $editor = 'ckeditor') {
     if ($editor == 'ckeditor') {
         // Include the CKEditor class.
@@ -460,7 +456,7 @@ function GetLatestVersionNumber() {
     }
 }
 
-function RemoveDirectory($dir) {
+function removeDirectory($dir) {
     if (is_dir($dir)) {
         if (substr($dir, -1, 1) == '/') {
         } else {
@@ -477,7 +473,7 @@ function RemoveDirectory($dir) {
             }
         }
         rmdir($dir);
-        return true;
+        return is_dir($dir);
     } else {
         return false;
     }

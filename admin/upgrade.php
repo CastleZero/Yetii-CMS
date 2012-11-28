@@ -23,7 +23,7 @@ if ($isLatestVersion === true) {
 			$localFile = fopen(TEMPDIRECTORY . 'latest.zip', 'wb');
 			if ($localFile) {
 					while(!feof($latestZip)) {
-						fwrite($localFile, fread($latestZip, 1024 * 8 ), 1024 * 8 );
+						fwrite($localFile, fread($latestZip, 1024 * 8), 1024 * 8);
 					}
 			}
 			/* End zip download code */
@@ -31,25 +31,37 @@ if ($isLatestVersion === true) {
 			fclose($latestZip);
 			$zip = new ZipArchive();
 			if ($zip->open(TEMPDIRECTORY . 'latest.zip')) {
-				$zip->extractTo(TEMPDIRECTORY);
-				$zip->close();
-				$results = glob(TEMPDIRECTORY . '*');
-				foreach($results as $result) {
-					if (is_dir($result) && $result != '.' && $result != '..') {
-						if (!isset($folder)) {
-							$folder = $result;
-						} else {
-							$folder = false;
-						}
-					}
+				// Zip has been opened successfully
+				if (is_dir(TEMPDIRECTORY . 'lastest')) {
+					removeDirectory(TEMPDIRECTORY . 'lastest');
 				}
-				if ($folder) {
-					unlink(TEMPDIRECTORY . 'latest.zip');
-					rename($folder, TEMPDIRECTORY . 'latest');
+				if (is_dir(TEMPDIRECTORY . 'lastest')) {
+					$zip->close();
+					echo 'There was an error deleting an old temp copy of Yetii.<br>';
 				} else {
-					echo 'There was an error extracting the zip or an old one still remains. Please try again.<br>';
-					if (!RemoveDirectory('includes/temp')) {
-						echo 'Please try deleting the ' . TEMPDIRECTORY . ' folder.<br>';
+					$zip->extractTo(TEMPDIRECTORY);
+					$zip->close();
+					if (is_file(TEMPDIRECTORY . 'latest/includes/upgrade/files.inc.php')) {
+						require_once(TEMPDIRECTORY . 'latest/includes/upgrade/files.inc.php');
+						$missingFiles = array();
+						foreach ($currentFiles as $file) {
+							if (!is_file(TEMPDIRECTORY . 'latest/' . $file)) {
+								array_push($missingFiles, $file);
+							}
+						}
+						if (count($missingFiles) > 0) {
+							echo 'The download is missing the following files and the upgrade will not be abandoned:<br>';
+							foreach ($missingFiles as $file) {
+								echo $file . '<br>';
+							}
+						} else {
+							// No files are missing from the downloaded zip
+							foreach ($currentFiles as $file) {
+								echo 'Moving ' . $file . ' to new installation location.<br>';
+							}
+						}
+					} else {
+						echo '"includes/update/files.inc.php" could not be found in the newly downloaded version of Yetii. Upgrade will now abort.<br>';
 					}
 				}
 			} else {
