@@ -22,6 +22,8 @@ require_once('includes/mapper.class.php'); /* Contains the mapper class used to 
 require_once('includes/functions.inc.php'); /* Contains various functions used around the site */
 require_once('includes/page.class.php'); /* Contains the page class used to create a page */
 require_once('includes/snippet.class.php'); /* Contains the class used to display snippets */
+require_once('includes/yetii.class.php');
+require_once('includes/restrequest.class.php');
 // Disable magic quotes gpc
 if (get_magic_quotes_gpc()) {
     $process = array(&$_GET, &$_POST, &$_COOKIE, &$_REQUEST);
@@ -38,13 +40,8 @@ if (get_magic_quotes_gpc()) {
     }
     unset($process);
 }
-$mapper = new Mapper();
-$settings = $mapper->GetSettings();
-define('WEBSITENAME', $settings['websiteName']);
-define('VERSION', $settings['version']);
-define('VERSIONCHANNEL', $settings['versionChannel']);
-define('TEMPLATE', $settings['template']);
-define('LANGUAGE', $settings['language']);
+$yetii = new Yetii();
+$yetii->loadSettings();
 // Get the page name
 if (isset($_GET['page'])) {
 	// Get the page name from the supplied GET value
