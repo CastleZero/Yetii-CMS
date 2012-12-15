@@ -11,7 +11,7 @@ if (isset($_GET['returnAddress'])) {
 	$error['message'] = 'You must log in to access that page. Please log in below to gain access to that page.';
 	array_push($errors, $error);
 } else {
-	$returnAddress = '/';
+	$returnAddress = ROOTURL;
 }
 if (isset($_POST['email']) || isset($_POST['password'])) {
 	// An email or password was submitted
