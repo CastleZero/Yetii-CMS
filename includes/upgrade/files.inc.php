@@ -7,7 +7,7 @@
 *	@name $oldFiles
 */
 $oldFiles = array(
-
+	'includes/upgrade/upgrade.class.php'
 );
 
 /**
@@ -54,7 +54,7 @@ $currentFiles = array(
 	'includes/locales/en_gb.json',
 	'includes/locales/es.json',
 	'includes/upgrade/files.inc.php',
-	'includes/upgrade/upgrade.class.php',
+	'includes/update.class.php',
 	'snippets/Footer/Footer.ini',
 	'snippets/Footer/index.php',
 	'snippets/Logo/index.php',
