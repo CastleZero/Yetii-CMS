@@ -110,15 +110,19 @@ if ($page->useEngine) {
 	$pageContents = $page->contents;
 	// Non-OO method
 	$html = file_get_html($HTMLTemplate);
-	// Get all the included files (e.g. css or javascript files) and add the basepath to them so that the browser loads them correctly
-	$includedTemplateFiles = $html->find('[href]');
-	for ($i = 0; $i < count($includedTemplateFiles); $i++) {
-		$link = $includedTemplateFiles[$i];
-		$href = $link->attr['href'];
-		if (substr($href, 0, 1) != '/' && substr($href, 0, 4) != 'http') {
-			// Only replace files that are relative to the template folder
-			$href = ROOTURL . INSTALLURL . $templateFolder . $href;
-			$html->find('[href]', $i)->attr['href'] = $href;
+	// Get all the included files (e.g. css or javascript files) and add the templates URL to them so that the browser loads them correctly
+	$includedTemplateFiles = $html->find('link[href], comment');
+	foreach ($includedTemplateFiles as $link) {
+		if (isset($link->href)) {
+			// $link has a href tag, update it
+			$href = $link->attr['href'];
+			if (substr($href, 0, 1) != '/' && substr($href, 0, 4) != 'http') {
+				// Only replace files that are relative to the template folder
+				$href = ROOTURL . INSTALLURL . $templateFolder . $href;
+				$link->attr['href'] = $href;
+			}
+		} else {
+			// This is a comment
 		}
 	}
 	// Add the meta description to the header

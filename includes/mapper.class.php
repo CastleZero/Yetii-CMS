@@ -21,7 +21,7 @@ class Mapper {
 		$this->dbh = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASS);
 	}
 
-	public function GetSettings() {
+	public function getSettings() {
 		$stmt = $this->dbh->prepare(self::QUERY_GET_SETTINGS);
 		$stmt->execute();
 		$result = $stmt->fetch(PDO::FETCH_ASSOC);

@@ -8,8 +8,9 @@ Version: <?php echo VERSION; ?> (<?php echo VERSIONCHANNEL; ?> channel)<br>
 <?php
 require_once('includes/update.class.php');
 $yetii = new Yetii();
+$yetii->loadSettings();
 $update = $yetii->getUpdate();
-if ($update) {
+if ($update == false) {
 	echo 'You\'re already on the latest version. Go you!<br>';
 } else {
 	echo 'Version ' . $update->getVersion() . ' is out! Please <a href="' . ROOTURL . ADMINFOLDER . 'upgrade.php">upgrade</a>.<br>';

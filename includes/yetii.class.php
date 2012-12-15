@@ -5,7 +5,7 @@ class Yetii {
 
 	public function loadSettings() {
 		$mapper = new Mapper();
-		$settings = $mapper->GetSettings();
+		$settings = $mapper->getSettings();
 		unset($mapper);
 		$this->name = $settings['websiteName'];
 		$this->version = $settings['version'];
@@ -45,7 +45,7 @@ class Yetii {
 	public function getUpdate() {
 		$update = new Update();
 		$update->getInformation($this->channel);
-		if ($update->getError() === false && $this->version < $update->getVersion()) {
+		if ($update->getError() === false && $this->version != $update->getVersion()) {
 			return $update;
 		} else {
 			return false;
