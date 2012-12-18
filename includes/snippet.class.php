@@ -15,16 +15,16 @@ class Snippet {
 	            // An index file was provided
 	            if (is_file($this->snippetLocation . '/' . $this->name . '.ini')) {
 	            	$this->properties = parse_ini_file($this->snippetLocation . '/' . $this->name . '.ini', true);
-	            	if ($this->properties['storageType'] == 'file') {
+	            	if ($this->properties['storageType'] == 'ini') {
 	            		// Try and load the snippets variables
-	            		$this->isDyanmic = true;
-	            		if ($this->properties['storageType'] == 'file') {
+	            		$this->isDynamic = true;
+	            		if (isset($this->properties['variablesFile'])) {
 	            			// Load variable from a file
 	            			if (is_file($this->snippetLocation . '/' . $this->properties['variablesFile'])) {
+	            				$this->variablesFile = $this->snippetLocation . '/' . $this->properties['variablesFile'];
 		            			$this->storedVariables = parse_ini_file($this->variablesFile);
 		            		} else {
 		            			$this->error = 'A storage type of file was found, but the file "' . $this->properties['variablesFile'] . '" is not valid.';
-		            			return false;
 		            		}
 	            		}
 	            	} else if ($this->properties['storageType'] == 'database') {
@@ -36,7 +36,6 @@ class Snippet {
             			$this->configurationPage = $this->snippetLocation . '/' . $this->properties['configurationPage'];
             			if (!is_file($this->configurationPage)) {
             				$this->error = 'The snippet is dynamic but the configuration file "' . $this->properties['configurationPage'] . '" could not be found.';
-            				return false;
             			}
             		}
 	            } else {
@@ -45,12 +44,10 @@ class Snippet {
 	        } else {
 	            // No index.php is present, the snippet is not valid
 	            $this->error = 'No index.php file was present.';
-	            return false;
 	        }
 	    } else {
 	        // Supplied snippet is not a valid folder
 	        $this->error = '"' . $snippet . '" could not be found in the snippets folder.';
-	        return false;
 	    }
 	    if ($this->editing) {
 	    	// Editing the snippet

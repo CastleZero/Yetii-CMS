@@ -39,7 +39,7 @@ if (isset($_GET['snippet'])) {
 				?>
 				<tr>
 					<td><?php echo $snippet->getName(); ?></td>
-					<td><?php echo $snippet->getError() === false ? 'Yes' : 'No'; ?></td>
+					<td><?php echo $snippet->getError() === false ? 'Yes' : $snippet->getError(); ?></td>
 					<td><?php echo $snippet->isDynamic() === true ? 'Yes' : 'No'; ?></td>
 					<td><?php if ($snippet->isDynamic() === true) {
 						?> <a href="<?php echo ROOTFOLDER . $snippet->getConfigurationPage() ?>">Edit Snippet</a>
