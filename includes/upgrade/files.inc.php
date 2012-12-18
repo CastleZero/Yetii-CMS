@@ -43,7 +43,6 @@ $currentFiles = array(
 	'admin/images/upload.php',
 	'images/core/cross.png',
 	'images/core/tick.png',
-	// 'includes/config.inc.php',
 	'includes/functions.inc.php',
 	'includes/mapper.class.php',
 	'includes/page.class.php',
@@ -58,6 +57,8 @@ $currentFiles = array(
 	'snippets/Footer/Footer.ini',
 	'snippets/Footer/index.php',
 	'snippets/Logo/index.php',
+	'snippets/Logo/config.php'
+	'snippets/Logo/Logo.ini',
 	'snippets/Navigation/config.php',
 	'snippets/Navigation/index.php',
 	'snippets/Navigation/Navigation.ini',
