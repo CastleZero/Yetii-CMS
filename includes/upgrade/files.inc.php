@@ -57,7 +57,7 @@ $currentFiles = array(
 	'snippets/Footer/Footer.ini',
 	'snippets/Footer/index.php',
 	'snippets/Logo/index.php',
-	'snippets/Logo/config.php'
+	'snippets/Logo/config.php',
 	'snippets/Logo/Logo.ini',
 	'snippets/Navigation/config.php',
 	'snippets/Navigation/index.php',
