@@ -1,14 +1,14 @@
 <?php
 
 class Yetii {
-	private $name, $version, $channel, $template, $language, $update = false;
+	private $name, $channel, $template, $language, $update = false;
+	const VERSION = '0.2.3';
 
 	public function loadSettings() {
 		$mapper = new Mapper();
 		$settings = $mapper->getSettings();
 		unset($mapper);
 		$this->name = $settings['websiteName'];
-		$this->version = $settings['version'];
 		$this->channel = $settings['versionChannel'];
 		$this->template = $settings['template'];
 		$this->language = $settings['language'];
@@ -17,7 +17,7 @@ class Yetii {
 			define('WEBSITENAME', $settings['websiteName']);
 		}
 		if (!defined('VERSION')) {
-			define('VERSION', $settings['version']);
+			define('VERSION', self::VERSION);
 		}
 		if (!defined('VERSIONCHANNEL')) {
 			define('VERSIONCHANNEL', $settings['versionChannel']);
@@ -45,7 +45,7 @@ class Yetii {
 	public function getUpdate() {
 		$update = new Update();
 		$update->getInformation($this->channel);
-		if ($update->getError() === false && $this->version < $update->getVersion()) {
+		if ($update->getError() === false && self::VERSION < $update->getVersion()) {
 			return $update;
 		} else {
 			return false;
