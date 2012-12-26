@@ -7,6 +7,7 @@
 *	@name $oldFiles
 */
 $oldFiles = array(
+	'admin/links.php',
 	'includes/upgrade/upgrade.class.php'
 );
 
@@ -46,6 +47,7 @@ $currentFiles = array(
 	'includes/functions.inc.php',
 	'includes/mapper.class.php',
 	'includes/page.class.php',
+	'includes/restrequest.class.php',
 	'includes/simple_html_dom.php',
 	'includes/snippet.class.php',
 	'includes/jquery/js/jquery-1.7.2.min.js',
@@ -54,6 +56,7 @@ $currentFiles = array(
 	'includes/locales/es.json',
 	'includes/upgrade/files.inc.php',
 	'includes/update.class.php',
+	'includes/yetii.class.php',
 	'snippets/Footer/Footer.ini',
 	'snippets/Footer/index.php',
 	'snippets/Logo/index.php',
