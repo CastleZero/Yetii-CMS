@@ -1,7 +1,7 @@
 <?php
 
 class Page {
-	public $url, $name, $contents, $metaDescription, $savedTo, $header, $redirectTo, $requiredAuth = 0, $useEngine = true;
+	public $url, $name, $contents, $metaDescription, $savedTo, $header, $redirectTo, $requiredAuth = 0, $useEngine = true, $newURL = false, $urlChanged = false;
 
 	/**
 	*
@@ -11,7 +11,7 @@ class Page {
 	* @var parsed bool Whether the page should be parsed, or returned in its original (code) form
 	* @return bool If the page was loaded successfully
 	*/
-	public function LoadPage($url, $parsed = true) {
+	public function load($url, $parsed = true) {
 		$this->url = $url;
 	    if (INSTALLURL !== '') {
 	    	// Yetii is not installed in the website root
@@ -140,6 +140,117 @@ class Page {
 			}
 			return false;
 		}
+	}
+
+	public function save() {
+		$errors = array();
+		if ($this->newURL !== false) {
+			// Updating the pages URL
+			$newPage = new Page();
+			if ($newPage->load($this->newURL) !== false) {
+				$error = array('fieldId' => 'pageURL', 'message' => 'The chosen URL is already taken. Please chose another URL.');
+				array_push($errors, $error);
+			}
+			unset($newPage);
+		}
+		if (count($errors) > 0) {
+			showErrors($errors);
+		} else {
+			// Page URL is valid
+			if ($this->savedTo == 'database') {
+				// Page is stored in a database
+				$mapper = new Mapper();
+				if ($mapper->savePage($this->url, $this->name, $this->requiredAuth, $this->contents, $this->metaDescription)) {
+					echo 'Page has been saved!<br>';
+				} else {
+					$error = array('fieldId' => 'pageURL', 'message' => 'There was an error saving the page\'s properties');
+					array_push($errors, $error);
+					showErrors($errors);
+				}
+				if ($this->newURL !== false) {
+					// Try to update the page's URL
+					if ($mapper->changePageURL($this->url, $this->newURL)) {
+						echo 'Page URL has been updated. You can <a href="pages.php?pageURL=' . $this->newURL . '">edit the page using its new URL</a>.<br>';
+						$this->urlChanged = true;
+					} else {
+						$error = array('fieldId' => 'url', 'message' => 'The Page URL could not be updated');
+						array_push($errors, $error);
+						showErrors($errors);
+						unset($mapper);
+					}
+				}
+				unset($mapper);
+			} else {
+				// Save the page to a file
+				if (file_put_contents($this->url, $this->contents)) {
+					echo 'Page saved!.<br>';
+				} else {
+					echo 'There was error saving the file. Please try again.<br>';
+				}
+				if ($this->newURL !== false) {
+					// Try to update the page's URL
+					if (rename($this->url, $this->newURL)) {
+						echo 'Page URL has been updated. You can <a href="pages.php?pageURL=' . $this->newURL . '">edit the page using its new URL</a>.<br>';
+						$this->urlChanged = true;
+					} else {
+						$error = array('fieldId' => 'url', 'message' => 'The Page URL could not be updated');
+						array_push($errors, $error);
+						showErrors($errors);
+					}
+				}
+			}
+		}
+	}
+
+	public function getSavedTo() {
+		return $this->savedTo;
+	}
+
+	public function getURL() {
+		return $this->url;
+	}
+
+	public function getName() {
+		return $this->name;
+	}
+
+	public function getRequiredAuth() {
+		return $this->requiredAuth;
+	}
+
+	public function getContents() {
+		return $this->contents;
+	}
+
+	public function getMetaDescription() {
+		return $this->metaDescription;
+	}
+
+	public function getURLChanged() {
+		return $this->urlChanged;
+	}
+
+	public function setURL($url) {
+		if ($url != $this->url) {
+			// URL is being updated
+			$this->newURL = $url;
+		}
+	}
+
+	public function setName($name) {
+		$this->name = $name;
+	}
+
+	public function setRequiredAuth($requiredAuth) {
+		$this->requiredAuth = $requiredAuth;
+	}
+
+	public function setContents($contents) {
+		$this->contents = $contents;
+	}
+
+	public function setMetaDescription($metaDescription) {
+		$this->metaDescription = $metaDescription;
 	}
 }
 ?>

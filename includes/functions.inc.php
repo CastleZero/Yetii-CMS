@@ -71,9 +71,11 @@ function UsersAuth() {
 
 function IsPage($url) {
     $page = new Page();
-    if ($page->LoadPage($url) === false) {
+    if ($page->load($url) === false) {
+        unset($page);
         return false;
     } else {
+        unset($page);
         return true;
     }
 }

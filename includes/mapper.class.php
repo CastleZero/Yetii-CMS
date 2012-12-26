@@ -3,7 +3,7 @@
 class Mapper {
 	const QUERY_GET_SETTINGS = "SELECT website_name, version, version_channel, template, language FROM settings";
 	const QUERY_GET_PAGE = "SELECT page_name, required_auth, page_content, meta_description FROM pages WHERE page_url = ?";
-	const QUERY_CHANGE_PAGE_URL = "UPDATE pages SET page_url = ? WHERE page_url = ?";
+	const QUERY_UPDATE_PAGE_URL = "UPDATE pages SET page_url = ? WHERE page_url = ?";
 	const QUERY_ADD_NEW_PAGE = "INSERT INTO pages (page_url, page_name, required_auth, page_content, meta_description) VALUES (?, ?, ?, ?, ?)";
 	const QUERY_UPDATE_PAGE = "UPDATE pages SET page_name = ?, required_auth = ?, page_content = ?, meta_description = ? WHERE page_url = ?";
 	const QUERY_GET_PAGES = "SELECT page_url FROM pages";
@@ -56,20 +56,8 @@ class Mapper {
 		}
 	}
 
-	public function SavePage($url, $name, $requiredAuth, $contents, $metaDescription, $oldURL = null) {
-		if ($oldURL) {
-			// Page URL is being updated
-			$stmt = $this->dbh->prepare(self::QUERY_CHANGE_PAGE_URL);
-			if (!$stmt->execute(array($url, $oldURL))) {
-				return false;
-			}
-			$stmt = $this->dbh->prepare(self::QUERY_UPDATE_PAGE);
-			if ($stmt->execute(array($name, $requiredAuth, $contents, $metaDescription, $url))) {
-				return true;
-			} else {
-				return false;
-			}
-		} else if ($this->GetPage($url) === false) {
+	public function savePage($url, $name, $requiredAuth, $contents, $metaDescription) {
+		if ($this->GetPage($url) === false) {
 			// Page is new; create it
 			$stmt = $this->dbh->prepare(self::QUERY_ADD_NEW_PAGE);
 			if ($stmt->execute(array($url, $name, $requiredAuth, $contents, $metaDescription))) {
@@ -78,7 +66,6 @@ class Mapper {
 				return false;
 			}
 		} else {
-			echo 'Updating a page<br>';
 			$stmt = $this->dbh->prepare(self::QUERY_UPDATE_PAGE);
 			if ($stmt->execute(array($name, $requiredAuth, $contents, $metaDescription, $url))) {
 				return true;
@@ -86,6 +73,14 @@ class Mapper {
 				return false;
 			}
 		}
+	}
+
+	public function changePageURL($oldURL, $newURL) {
+		$stmt = $this->dbh->prepare(self::QUERY_UPDATE_PAGE_URL);
+		if (!$stmt->execute(array($newURL, $oldURL))) {
+			return false;
+		}
+		 return true;
 	}
 
 	public function GetSnippetVariables($snippet) {
@@ -102,7 +97,7 @@ class Mapper {
 		}
 	}
 
-	public function GetAllPages() {
+	public function getAllPages() {
 		$stmt = $this->dbh->prepare(self::QUERY_GET_PAGES);
 		$stmt->execute();
 		if ($stmt->fetchColumn() !== false) {
@@ -203,9 +198,9 @@ class Mapper {
 		}
 	}
 
-	public function DeletePage($pageURL) {
+	public function deletePage($url) {
 		$stmt = $this->dbh->prepare(self::QUERY_DELETE_PAGE);
-		if ($stmt->execute(array($pageURL))) {
+		if ($stmt->execute(array($url))) {
 			return true;
 		} else {
 			return false;

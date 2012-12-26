@@ -6,101 +6,43 @@ if (isset($_GET['pageURL'])) {
 	// Editing a page
 	$url = $_GET['pageURL'];
 	$page = new Page();
-	if ($page->LoadPage($url, false) !== false) { // Get the page variables (unparsed)
-		$savedTo = $page->savedTo;
-		if (isset($_POST['pageURL'])) {
-			$url = $_POST['pageURL'];
-			if ($url !== $_GET['pageURL']) {
-				// Updating the pages URL
-				$oldURL = $_GET['pageURL'];
-				$newPage = new Page();
-				if ($newPage->LoadPage($url) !== false) {
-					$error = array('fieldId' => 'pageURL', 'message' => 'The chosen URL is already taken. Please chose another URL.');
-					array_push($errors, $error);
-				}
-				unset($newPage);
-			} else {
-				$oldURL = false;
+	if ($page->load($url, false) !== false) { // Get the page variables (unparsed)
+		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+			// Page has been saved
+			if (isset($_POST['url'])) {
+				$page->setURL($_POST['url']);
 			}
-		} else {
-			$url = $page->url;
-		}
-		if (isset($_POST['name'])) {
-			$name = $_POST['name'];
-		} else {
-			$name = $page->name;
-		}
-		if (isset($_POST['requiredAuth'])) {
-			$requiredAuth = $_POST['requiredAuth'];
-		} else {
-			$requiredAuth = $page->requiredAuth;
-		}
-		if (isset($_POST['contents'])) {
-			$contents = $_POST['contents'];
-		} else {
-			$contents = $page->contents;
-		}
-		if (isset($_POST['metaDescription'])) {
-			$metaDescription = $_POST['metaDescription'];
-		} else {
-			$metaDescription = $page->metaDescription;
-		}
-		if (count($errors) > 0) {
-			showErrors($errors);
-		} else {
-			if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-				// Save the page
-				if ($savedTo == 'database') {
-					$mapper = new Mapper();
-					if ($mapper->SavePage($url, $name, $requiredAuth, $contents, $metaDescription, $oldURL)) {
-						if ($oldURL) {
-							echo 'Page URL has been updated. You can <a href="/admin/pages.php?pageURL=' . $url . '">edit the page using its new URL</a>.<br>';
-							return;
-						} else {
-							echo 'Page was successfully updated!<br>';
-						}
-					} else {
-						echo 'There was an error updating the page. Please try again.<br>';
-					}
-				} else {
-					// Save the page to a file
-					echo 'You cannot currently update a page in a file. Please create a new page and store it in the database.<br>';
-					// if ($oldURL) {
-					// 	// Changing URL
-					// 	if (file_put_contents($url, $contents)) {
-					// 		if (unlink($oldURL)) {
-					// 			echo 'Page has been saved and can now be <a href="/admin/pages.php?pageURL=' . $url . '">edited using the new URL</a>.<br>';
-					// 		} else {
-					// 			echo 'There was an error deleting the old file. The new page can now be <a href="/admin/pages.php?pageURL=' . $url . '">edited at using the new URL</a>.<br>';
-					// 		}
-					// 		return;
-					// 	} else {
-					// 		echo 'There was an error saving the new file. Please try again.<br>';
-					// 	}
-					// } else {
-					// 	if (!file_put_contents($url, $contents)) {
-					// 		echo 'Error saving file. Please try again.<br>';
-					// 	} else {
-					// 		echo 'Page updated!<br>';
-					// 	}
-					// }
-				}
+			if (isset($_POST['name'])) {
+				$page->setName($_POST['name']);
+			}
+			if (isset($_POST['requiredAuth'])) {
+				$page->setRequiredAuth($_POST['requiredAuth']);
+			}
+			if (isset($_POST['contents'])) {
+				$page->setContents($_POST['contents']);
+			}
+			if (isset($_POST['metaDescription'])) {
+				$page->setMetaDescription($_POST['metaDescription']);
+			}
+			$page->save();
+			if ($page->getURLChanged()) {
+				return;
 			}
 		}
 		?>
 		<form method="POST">
-			Saved To: <?php echo $savedTo; ?><br>
-			Page URL: <input type="text" name="pageURL" id="pageURL" value="<?php echo $url; ?>" required="required"><br>
-			<?php if ($savedTo == 'database') {
+			Saved To: <?php echo $page->getSavedTo(); ?><br>
+			Page URL: <input type="text" name="url" value="<?php echo $page->getURL(); ?>" required="required"><br>
+			<?php if ($page->getSavedTo() == 'database') {
 				?>
-				Page Name = <input type="text" name="name" value="<?php echo $name; ?>" required="required"><br>
-				Page Required Auth = <input type="number" name="requiredAuth" value="<?php echo $requiredAuth; ?>" required="required"><br>
+				Page Name = <input type="text" name="name" value="<?php echo $page->getName(); ?>" required="required"><br>
+				Page Required Auth = <input type="number" name="requiredAuth" value="<?php echo $page->getRequiredAuth(); ?>" required="required"><br>
 			<?php } ?>
 			Page Content
-			<?php CreateEditor($contents, 'contents'); ?>
-			<?php if ($savedTo == 'database') {
+			<?php CreateEditor($page->getContents(), 'contents'); ?>
+			<?php if ($page->getSavedTo() == 'database') {
 				?>
-				Meta Description: <input type="text" name="metaDescription" value="<?php echo $metaDescription; ?>"><br>
+				Meta Description: <input type="text" name="metaDescription" value="<?php echo $page->getMetaDescription(); ?>"><br>
 			<?php } ?>
 			<input type="submit" value="Save Page">
 		</form>
@@ -109,33 +51,41 @@ if (isset($_GET['pageURL'])) {
 		echo 'Page URL could not be found.<br>';
 	}
 } else if (isset($_GET['deletePageURL'])) {
-	$pageURL = $_GET['deletePageURL'];
-	if (GetPage($pageURL, false)) {
+	// Delete a page
+	$url = $_GET['deletePageURL'];
+	$page = new Page();
+	if ($page->load($url, false) !== false) {
+		// Page is valid
 		if (isset($_GET['confirmDelete']) && $_GET['confirmDelete']) {
 			// Delete the page
-			if (unlink($pageURL)) {
-				echo 'File has been deleted.<br>';
+			if ($page->getSavedTo() == 'database') {
 				$mapper = new Mapper();
-				if ($mapper->DeletePage($pageURL)) {
-					echo 'Page has been removed from the database.';
+				if ($mapper->deletePage($url)) {
+					echo 'Page has been deleted from the database.<br>';
 				} else {
-					echo 'Page was not removed from the database.';
+					echo 'Page was not deleted from the database.<br>';
+				}
+			} else if ($page->getSavedTo() == 'file') {
+				if (unlink($url)) {
+					echo 'Page has been deleted.<br>';
+				} else {
+					echo 'There was an error deleting the page';
 				}
 			} else {
-				echo 'There was an error deleting the file, please try again.';
+				echo 'Page is not valid.<br>';
 			}
 		} else {
 			// Ask for confirmation
 			?>
 			<form method="GET">
-				<input type="hidden" name="deletePageURL" value="<?php echo $pageURL; ?>">
+				<input type="hidden" name="deletePageURL" value="<?php echo $url; ?>">
 				<input type="hidden" name="confirmDelete" value="true">
 				<input type="submit" value="Confirm Delete">
 			</form>
 			<?php
 		}
 	} else {
-		echo 'Provided page URL is not valid.';
+		echo 'Provided URL was not found.<br>';
 	}
 } else {
 	// Not editing a new page, display all pages and the option to create a new page
@@ -148,14 +98,39 @@ if (isset($_GET['pageURL'])) {
 	</form>
 	<?php
 	$mapper = new Mapper();
-	$pages = $mapper->GetAllPages();
+	$pages = $mapper->getAllPages();
 	unset($mapper);
+	foreach ($pages as &$page) {
+		$page['savedTo'] = 'database';
+	}
+	require_once('includes/upgrade/files.inc.php');
+	$di = new RecursiveDirectoryIterator('.');
+	foreach (new RecursiveIteratorIterator($di) as $filename => $file) {
+		if (substr($filename, -2) != '..' && substr($filename, -2) != '/.') {
+		    $filename = substr($filename, 2);
+		    if (substr($filename, 0, strlen(ADMINFOLDER)) == ADMINFOLDER ||
+		    	substr($filename, 0, strlen('includes')) == 'includes' ||
+		    	substr($filename, 0, strlen(SNIPPETSFOLDER)) == SNIPPETSFOLDER ||
+		    	substr($filename, 0, strlen(TEMPLATESFOLDER)) == TEMPLATESFOLDER ||
+		    	substr($filename, 0, strlen(IMAGESFOLDER)) == IMAGESFOLDER ||
+		    	substr($filename, 0, 1) == '.' ||
+				$filename == '_maintenance') {
+		    	// Don't show files in the admin or includes directories
+		    } else {
+			    if (!in_array($filename, $currentFiles)) {
+			    	$file = array('page_url' => $filename, 'savedTo' => 'file');
+			    	array_push($pages, $file);
+			    }
+			}
+		}
+	}
 	if ($pages !== false) {
 		?>
 		All Pages in the database:<br>
 		<table>
 			<th>Page URL</th>
 			<th>Edit Page</th>
+			<th>Saved To</th>
 			<th>Delete Page</th>
 			<?php
 			foreach ($pages as $page) {
@@ -164,6 +139,7 @@ if (isset($_GET['pageURL'])) {
 				<tr>
 					<td><?php echo $pageURL; ?></td>
 					<td><a href="?pageURL=<?php echo $pageURL; ?>">Edit This Page</a></td>
+					<td><?php echo $page['savedTo']; ?></td>
 					<td><a href="?deletePageURL=<?php echo $pageURL; ?>">Delete This Page</a></td>
 				</tr>
 			<?php

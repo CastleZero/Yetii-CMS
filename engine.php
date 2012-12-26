@@ -51,7 +51,7 @@ if (isset($_GET['page'])) {
 	$pageURL = 'index.php';
 }
 $page = new Page();
-$page->LoadPage($pageURL);
+$page->load($pageURL);
 if ($page->header) {
 	header($page->header);
 }

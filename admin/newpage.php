@@ -42,20 +42,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 				$newPageURL = $newPageURL . '.php';
 			}
 			$pageCode = "<?php\r\n" .
-						'$pageName = "' . $newPageName . "\";\r\n" .
+						'$pageName = \'' . $newPageName . "';\r\n" .
 						'$requiredAuth = ' . $newPageRequiredAuth . ";\r\n" .
 						"?>\r\n" .
 						$pageCode;
 			if (file_put_contents($newPageURL, $pageCode)) {
 				echo 'Page saved! You can now <a href="/admin/pages.php?pageURL=' . $newPageURL . '">edit the file</a>.<br>';
-				if ($saveToDatabase) {
-					$mapper = new Mapper();
-					if ($mapper->AddNewPage($newPageURL)) {
-						echo 'Page was also added to database.<br>';
-					} else {
-						echo 'There was an error adding the file to the database.<br>';
-					}
-				}
 				return;
 			} else {
 				echo 'There was error saving the file. Please try again.<br>';
@@ -63,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		} else {
 			// Save the page to the database
 			$mapper = new Mapper();
-			if ($mapper->SavePage($newPageURL, $newPageName, $newPageRequiredAuth, $pageCode, $metaDescription) !== false) {
+			if ($mapper->savePage($newPageURL, $newPageName, $newPageRequiredAuth, $pageCode, $metaDescription) !== false) {
 				echo 'Page saved! You can now <a href="/admin/pages.php?pageURL=' . $newPageURL . '">edit the page</a>.<br>';
 				return;
 			} else {
@@ -74,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 ?>
 <form method="POST">
-	Save to file (NOT recommended): <input type="checkbox" name="saveToFile" <?php if (isset($saveToFile) && $saveToFile === true) echo 'checked="checked"'; ?>><br>
+	Save to file (Slightly experimental): <input type="checkbox" name="saveToFile" <?php if (isset($saveToFile) && $saveToFile === true) echo 'checked="checked"'; ?>><br>
 	New Page URL: <?php echo ROOTURL; ?><input type="text" name="newPageURL" <?php if (isset($newPageURL)) echo 'value="' . $newPageURL . '"'; ?> required="required"><br>
 	Page Name = <input type="text" name="pageName" <?php if (isset($newPageName)) echo 'value="' . $newPageName . '"'; ?> required="required"><br>
 	Page Required Auth = <input type="number" name="newPageRequiredAuth" <?php if (isset($newPageRequiredAuth)) echo 'value="' . $newPageRequiredAuth . '"'; else echo 'value="0"'; ?> required="required"><br>
