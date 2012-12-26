@@ -98,10 +98,12 @@ if (isset($_GET['pageURL'])) {
 	</form>
 	<?php
 	$mapper = new Mapper();
-	$pages = $mapper->getAllPages();
+	$dbPages = $mapper->getAllPages();
 	unset($mapper);
-	foreach ($pages as &$page) {
-		$page['savedTo'] = 'database';
+	$pages = array();
+	foreach ($dbPages as $dbPage) {
+		$page = array('url' => $dbPage['page_url'], 'savedTo' => 'database');
+		array_push($pages, $page);
 	}
 	require_once('includes/upgrade/files.inc.php');
 	$di = new RecursiveDirectoryIterator('.');
@@ -118,7 +120,7 @@ if (isset($_GET['pageURL'])) {
 		    	// Don't show files in the admin or includes directories
 		    } else {
 			    if (!in_array($filename, $currentFiles)) {
-			    	$file = array('page_url' => $filename, 'savedTo' => 'file');
+			    	$file = array('url' => $filename, 'savedTo' => 'file');
 			    	array_push($pages, $file);
 			    }
 			}
@@ -134,7 +136,7 @@ if (isset($_GET['pageURL'])) {
 			<th>Delete Page</th>
 			<?php
 			foreach ($pages as $page) {
-				$pageURL = $page['page_url'];
+				$pageURL = $page['url'];
 				?>
 				<tr>
 					<td><?php echo $pageURL; ?></td>
