@@ -1,14 +1,16 @@
 Options -Indexes +FollowSymlinks -MultiViews
-ErrorDocument 404 /404.html
+ErrorDocument 404 /404.php
 
 <IfModule mod_rewrite.c>
 RewriteEngine On
 
-# If the requested filename does not exist, the filename is not a directory, but the filename+.php exists, then append the .php extension to it and send it to the engine
+# If the requested script name is not a directory
 RewriteCond %{SCRIPT_FILENAME} !-d
+# ... not a file
 RewriteCond %{SCRIPT_FILENAME} !-f
-RewriteCond %{SCRIPT_FILENAME}.php -f
-# Rewrite it to the engine
+# ... but the script filename.php is a file
+RewriteCond %{REQUEST_URI}.php -f
+# ... rewrite it to the engine
 RewriteRule ^(.*)$ engine.php?page=$1.php [QSA,L]
 
 # Send all PHP and HMTL files to the engine
