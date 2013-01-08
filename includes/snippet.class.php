@@ -6,7 +6,7 @@ class Snippet {
 	public function load($snippet, $editingSnippet = false, $variables = array(), $code = false) {
 		$this->name = $snippet;
 	    $this->snippetLocation = SNIPPETSFOLDER . $snippet;
-	    $passedVariables = $variables;
+	    $this->passedVariables = $variables;
 	    $this->editing = $editingSnippet;
 	    if (is_dir($this->snippetLocation)) {
 	        // The snippet provided was valid, check for an index file
@@ -65,6 +65,9 @@ class Snippet {
 	    	ob_start();
 	        if ($this->storedVariables) {
 	            extract($this->storedVariables);
+	        }
+	        if (is_array($this->passedVariables)) {
+	            extract($this->passedVariables);
 	        }
 	        require($this->snippetFile);
 	        $this->contents = ob_get_clean();

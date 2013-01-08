@@ -11,7 +11,7 @@ if (isset($_GET['image'])) {
 			<img src="<?php echo ROOTFOLDER . IMAGESFOLDER . $imageName; ?>" <?php echo $image[3]; ?>><br>
 			<input type="submit" value="Submit Changes"><br>
 			Copy the contents of the textarea area and paste it in the URL when adding an image to a page.<br>
-			<textarea cols="30" rows="2"><?php echo ROOTFOLDER . IMAGESFOLDER . $imageName; ?></textarea><br>
+			<textarea cols="30" rows="2"><?php echo '<?php echo ROOTFOLDER . IMAGESFOLDER; ?>' . $imageName; ?></textarea><br>
 		</form>
 		<?php
 	} else {

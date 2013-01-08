@@ -91,7 +91,7 @@ Drag around the list below to re-order the links. Edit any links as required.<br
 				<li name="<?php echo $numberOfLinks; ?>">
 					<input type="number" name="<?php echo $numberOfLinks; ?>_order">
 					<label>Name <input type="text" name="<?php echo $numberOfLinks; ?>_name" value="<?php echo $name; ?>"></label>
-					<label>URL: <label>Use Root (<?php echo ROOTURL; ?>) <input type="checkbox" name="<?php echo $numberOfLinks; ?>_useRoot" <?php if ($useRoot) echo 'checked="checked"'; ?>></label><input type="text" name="<?php echo $numberOfLinks; ?>_url" value="<?php echo $url; ?>"></label>
+					URL: <label>Use Root (<?php echo ROOTURL; ?>) <input type="checkbox" name="<?php echo $numberOfLinks; ?>_useRoot" <?php if ($useRoot) echo 'checked="checked"'; ?>></label><input type="text" name="<?php echo $numberOfLinks; ?>_url" value="<?php echo $url; ?>">
 					<label>Title <input type="text" name="<?php echo $numberOfLinks; ?>_title" value="<?php echo $title; ?>"></label>
 					<label>Required Auth <input type="number" name="<?php echo $numberOfLinks; ?>_requiredAuth" value="<?php echo $requiredAuth; ?>"></label>
 					<a href="javascript:DeleteLink(<?php echo $numberOfLinks; ?>);">Delete Link</a>

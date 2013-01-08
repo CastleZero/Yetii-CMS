@@ -1,25 +1,38 @@
 Options -Indexes +FollowSymlinks -MultiViews
 ErrorDocument 404 /404.php
+AddType 'text/html; charset=iso-8859-15' html
 
 <IfModule mod_rewrite.c>
 RewriteEngine On
 
-# If the requested script name is not a directory
-RewriteCond %{SCRIPT_FILENAME} !-d
-# ... not a file
+# If the requested script filename is not a file
 RewriteCond %{SCRIPT_FILENAME} !-f
 # ... but the script filename.php is a file
-RewriteCond %{REQUEST_URI}.php -f
+RewriteCond %{SCRIPT_FILENAME}.php -f
 # ... rewrite it to the engine
 RewriteRule ^(.*)$ engine.php?page=$1.php [QSA,L]
 
-# Send all PHP and HMTL files to the engine
-RewriteCond %{REQUEST_URI} \.(php|html)$
-# Rewrite it to the engine
+# If the requested script filename is a directory
+RewriteCond %{SCRIPT_FILENAME} -d
+# ... and an index file exists
+RewriteCond %{SCRIPT_FILENAME}index.php -f
+# .. rewrite to the engine
+RewriteRule ^(.*)$ engine.php?page=$1index.php [QSA,L]
+
+# If the requested script filename is a directory
+RewriteCond %{SCRIPT_FILENAME} -d
+# ... and an index file exists
+RewriteCond %{SCRIPT_FILENAME}/index.php -f
+# .. rewrite to the engine
+RewriteRule ^(.*)$ engine.php?page=$1/index.php [QSA,L]
+
+# If the file is a PHP or HTML file
+RewriteCond %{SCRIPT_FILENAME} \.(php|html)$
+# ... rewrite it to the engine
 RewriteRule ^(.*)$ engine.php?page=$1 [QSA,L]
 
-# Rule for redirecting pages that only exist in the database to the engine
+# If the script filename is not a file
 RewriteCond %{SCRIPT_FILENAME} !-f 
-# Rewrite it to the engine
+# ... rewrite it to the engine
 RewriteRule ^(.*)$ engine.php?page=$1 [QSA,L]
 </IfModule>

@@ -111,7 +111,7 @@ if ($page->useEngine) {
 	// Non-OO method
 	$html = file_get_html($HTMLTemplate);
 	// Get all the included files (e.g. css or javascript files) and add the templates URL to them so that the browser loads them correctly
-	$includedTemplateFiles = $html->find('link[href], comment');
+	$includedTemplateFiles = $html->find('link[href], script[src], comment');
 	foreach ($includedTemplateFiles as $link) {
 		if (isset($link->href)) {
 			// $link has a href tag, update it
@@ -120,6 +120,13 @@ if ($page->useEngine) {
 				// Only replace files that are relative to the template folder
 				$href = ROOTURL . INSTALLURL . $templateFolder . $href;
 				$link->attr['href'] = $href;
+			}
+		} else if (isset($link->src)) {
+			$href = $link->attr['src'];
+			if (substr($href, 0, 1) != '/' && substr($href, 0, 4) != 'http') {
+				// Only replace files that are relative to the template folder
+				$href = ROOTURL . INSTALLURL . $templateFolder . $href;
+				$link->attr['src'] = $href;
 			}
 		} else {
 			// This is a comment
