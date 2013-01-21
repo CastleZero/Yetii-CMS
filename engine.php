@@ -52,16 +52,16 @@ if (isset($_GET['page'])) {
 }
 $page = new Page();
 $page->load($pageURL);
-if ($page->header) {
-	header($page->header);
-}
-if ($page->redirectTo) {
-	// Page is being redirected
-	header('Location: ' . $page->redirectTo);
-	exit;
-}
 if ($page->useEngine) {
 	// Page being loaded wants to use the engine to be rendered
+	if ($page->header) {
+		header($page->header);
+	}
+	if ($page->redirectTo) {
+		// Page is being redirected
+		header('Location: ' . $page->redirectTo);
+		exit;
+	}
 	// Get the name of the page (including the directory path) so we can check for the correct template file
 	if (is_dir($pageURL)) {
 	    if (substr($pageURL, '-1') != '/') {
@@ -206,6 +206,7 @@ if ($page->useEngine) {
 			echo 'There was an error in the ini file for the template: An element did not have an "element" value. Please check your ini file<br>';
 		}
 	}
+	$html->find('html', 0)->innertext = preg_replace_callback('|\[(.*?)\]|', 'getSnippetCode', $html->innertext);
 	// Add required script files
 	$includeScripts = array('jquery', 'jqueryui');
 	foreach ($includeScripts as $script) {

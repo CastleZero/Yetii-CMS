@@ -403,6 +403,37 @@ function CreateEditor($contents, $id = 'codeTextbox', $editor = 'ckeditor') {
         );
         // Create a textarea element and attach CKEditor to it.
         $CKEditor->editor($id, $contents, $config);
+    } else if ($editor == 'TinyMCE') {
+        /*$allowedTags='<p><strong><em><u><h1><h2><h3><h4><h5><h6><img>';
+        $allowedTags.='<li><ol><ul><span><div><br><ins><del>';  
+        // Should use some proper HTML filtering here.
+          if($_POST[$id]!='') {
+            $sHeader = '<h1>Ah, content is king.</h1>';
+            $sContent = strip_tags(stripslashes($_POST[$id]),$allowedTags);
+        } else {
+            $sHeader = '<h1>Nothing submitted yet</h1>';
+            $sContent = '<p>Start typing...</p>';
+            $sContent.= '<p><img width="107" height="108" border="0" src="/mediawiki/images/badge.png"';
+            $sContent.= 'alt="TinyMCE button"/>This rover has crossed over</p>';
+          }*/
+        echo '<script language="javascript" type="text/javascript" src="'. ROOTURL . 'includes/tinymce/tiny_mce.js"></script>
+            <script language="javascript" type="text/javascript">
+          tinyMCE.init({
+            theme : "advanced",
+            skin : "wp_theme",
+            mode: "exact",
+            elements : "' . $id . '",
+            theme_advanced_toolbar_location : "top",
+            theme_advanced_buttons1 : "bold,italic,underline,strikethrough,separator,"
+            + "justifyleft,justifycenter,justifyright,justifyfull,formatselect,"
+            + "bullist,numlist,outdent,indent",
+            theme_advanced_buttons2 : "link,unlink,anchor,image,separator,"
+            +"undo,redo,cleanup,code,separator,sub,sup,charmap",
+            theme_advanced_buttons3 : ""
+        });
+
+        </script>
+        <textarea id="' . $id . '" name="' . $id . '" rows="15" cols="80"' . $contents . '</textarea>';
     } else {
         // Include the Cute Editor files
         include_once 'cuteeditor_files/include_CuteEditor.php';
@@ -469,7 +500,7 @@ function removeDirectory($dir) {
             if ($result == '.' || $result == '..') {
                 // Don't do anything
             } else if (is_dir($dir . $result)) {
-                RemoveDirectory($dir . $result);
+                removeDirectory($dir . $result);
             } else {
                 unlink($dir . $result);
             }
@@ -481,4 +512,28 @@ function removeDirectory($dir) {
     }
 }
 
+function getSnippetCode($code) {
+    $split = explode(':', $code[1], 2);
+    $snippetName = $split[0];
+    if (array_key_exists(1, $split)) {
+        if (!$variables = json_decode($split[1], true)) {
+            $constants = get_defined_constants(true);
+            $json_errors = array();
+            foreach ($constants["json"] as $name => $value) {
+                if (!strncmp($name, "JSON_ERROR_", 11)) {
+                    $json_errors[$value] = $name;
+                }
+            }
+            echo 'Error with JSON for "' . $snippetName . '".<br>' . $json_errors[json_last_error()] . '<br>';
+        }
+    } else {
+        $variables = false;
+    }
+    $snippet = new Snippet();
+    if ($snippet->load($snippetName, false, $variables)) {
+        return $snippet->getContents();
+    } else {
+        return $snippet->getError();
+    }
+}
 ?>

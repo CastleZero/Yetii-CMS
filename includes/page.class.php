@@ -11,7 +11,7 @@ class Page {
     * @var parsed bool Whether the page should be parsed, or returned in its original (code) form
     * @return bool If the page was loaded successfully
     */
-    public function load($url, $parsed = true) {
+    public function load($url, $parsed = false) {
         $this->url = $url;
         if (INSTALLURL !== '') {
             // Yetii is not installed in the website root

@@ -49,31 +49,35 @@ class Snippet {
 	        // Supplied snippet is not a valid folder
 	        $this->error = '"' . $snippet . '" could not be found in the snippets folder.';
 	    }
-	    if ($this->editing) {
-	    	// Editing the snippet
-	    	if ($this->isDynamic) {
-	        	$this->contents = file_get_contents($this->configurationPage);
-	        } else {
-	        	if (!$code) {
-	        		$this->contents = file_get_contents($this->snippetLocation . '/index.php');
-	        	} else {
-	        		$this->contents = $code;
-	        	}
-	        }
+	    if ($this->error) {
+	    	return false;
 	    } else {
-	        // Not editing the snippet
-	    	ob_start();
-	        if ($this->storedVariables) {
-	            extract($this->storedVariables);
-	        }
-	        if (is_array($this->passedVariables)) {
-	            extract($this->passedVariables);
-	        }
-	        require($this->snippetFile);
-	        $this->contents = ob_get_clean();
-	    }
-	    $this->loaded = true;
-	    return true;
+		    if ($this->editing) {
+		    	// Editing the snippet
+		    	if ($this->isDynamic) {
+		        	$this->contents = file_get_contents($this->configurationPage);
+		        } else {
+		        	if (!$code) {
+		        		$this->contents = file_get_contents($this->snippetLocation . '/index.php');
+		        	} else {
+		        		$this->contents = $code;
+		        	}
+		        }
+		    } else {
+		        // Not editing the snippet
+		    	ob_start();
+		        if ($this->storedVariables) {
+		            extract($this->storedVariables);
+		        }
+		        if (is_array($this->passedVariables)) {
+		            extract($this->passedVariables);
+		        }
+		        require($this->snippetFile);
+		        $this->contents = ob_get_clean();
+		    }
+		    $this->loaded = true;
+		    return true;
+		}
 	}
 
 	public function save($code) {
