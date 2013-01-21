@@ -51,7 +51,8 @@ if (isset($_GET['page'])) {
 	$pageURL = 'index.php';
 }
 $page = new Page();
-$page->load($pageURL);
+$parsed = (substr($pageURL, 0, 5) == 'admin') ? true : false;
+$page->load($pageURL, $parsed);
 if ($page->useEngine) {
 	// Page being loaded wants to use the engine to be rendered
 	if ($page->header) {
