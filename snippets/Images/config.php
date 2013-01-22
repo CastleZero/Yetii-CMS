@@ -2,7 +2,7 @@
 $pageName = 'Manage Images';
 $requiredAuth = 3;
 ?>
-<a href="<?php echo ROOTFOLDER . ADMINFOLDER; ?>images/upload.php">Upload Image</a><br>
+<a href="upload.php">Upload Image</a><br>
 <?php
 $images = glob(IMAGESFOLDER . '*');
 if (!empty($images)) {
@@ -16,16 +16,23 @@ if (!empty($images)) {
 		<th>Delete</th>
 		<?php
 		foreach ($images as $image) {
-			if ($imageInfo = getimagesize($image)) {
+			if (is_file($image)) {
 				// File is an image
+				$imageInfo = getimagesize($image);
 				$fileName = str_replace(IMAGESFOLDER, '', $image);
 				$fileSize = round(filesize($image)/1000/1000, 2); // Get the size in Megabytes to 2 decimal places
 				?>
 				<tr>
 					<td><?php echo $fileName; ?></td>
 					<td><?php echo $fileSize; ?></td>
-					<td><a href="<?php echo ROOTFOLDER . ADMINFOLDER; ?>images/manage.php?image=<?php echo $fileName; ?>">Manage Image</a></td>
-					<td><a href="<?php echo ROOTFOLDER . ADMINFOLDER; ?>images/delete.php?image=<?php echo $fileName; ?>">Delete Image</a></td>
+					<td><a href="manage.php?image=<?php echo $fileName; ?>">Manage Image</a></td>
+					<td><a href="delete.php?image=<?php echo $fileName; ?>">Delete Image</a></td>
+				</tr>
+				<?php
+			} else {
+				?>
+				<tr>
+					<td>Error loading image "<?php echo $image; ?>"</td>
 				</tr>
 				<?php
 			}

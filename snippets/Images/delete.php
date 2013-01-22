@@ -22,6 +22,6 @@ if (isset($_GET['image'])) {
 	}
 } else {
 	?>
-	<a href="<?php echo ROOTFOLDER . ADMINFOLDER; ?>images/">Please choose an image to delete.</a><br>
+	<a href="config.php">Please choose an image to delete.</a><br>
 	<?php
 }

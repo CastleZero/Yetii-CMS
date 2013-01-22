@@ -11,7 +11,7 @@ class Page {
     * @var parsed bool Whether the page should be parsed, or returned in its original (code) form
     * @return bool If the page was loaded successfully
     */
-    public function load($url, $parsed = false) {
+    public function load($url, $parsed = false, $parseDB = false) {
         $this->url = $url;
         if (INSTALLURL !== '') {
             // Yetii is not installed in the website root
@@ -88,7 +88,7 @@ class Page {
                 $this->name = $pageVariables['name'];
                 $this->requiredAuth = $pageVariables['requiredAuth'];
                 $this->metaDescription = $pageVariables['metaDescription'];
-                if ($parsed) {
+                if ($parsed && $parseDB) {
                     if (!is_dir(TEMPDIRECTORY)) {
                         mkdir(TEMPDIRECTORY);
                     }
@@ -116,7 +116,7 @@ class Page {
                     $this->contents = $pageVariables['content'];
                 }
             } else {
-                // Page was not found in the database, check for a file with that url
+                // Page was not found in the database, return status 404
                 $this->name = '404 Not Found';
                 $this->contents = '404 Not Found';
                 $this->header = 'HTTP/1.1 404 Not Found';

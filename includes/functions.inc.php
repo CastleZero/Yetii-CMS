@@ -513,7 +513,7 @@ function removeDirectory($dir) {
 }
 
 function getSnippetCode($code) {
-    $split = explode(':', $code[1], 2);
+    $split = explode(':', $code[2], 2);
     $snippetName = $split[0];
     if (array_key_exists(1, $split)) {
         if (!$variables = json_decode($split[1], true)) {

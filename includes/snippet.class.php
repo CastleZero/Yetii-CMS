@@ -1,7 +1,7 @@
 <?php
 
 class Snippet {
-	private $name, $properties, $contents, $configurationPage = false, $error = false, $editing, $snippetLocation, $passedVariables, $storedVariables = false, $loaded = false;
+	private $name, $properties, $contents, $configurationPage = false, $error = false, $editing, $snippetLocation, $passedVariables, $storedVariables = false, $loaded = false, $isDynamic;
 
 	public function load($snippet, $editingSnippet = false, $variables = array(), $code = false) {
 		$this->name = $snippet;

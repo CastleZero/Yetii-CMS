@@ -51,8 +51,7 @@ if (isset($_GET['page'])) {
 	$pageURL = 'index.php';
 }
 $page = new Page();
-$parsed = (substr($pageURL, 0, 5) == 'admin') ? true : false;
-$page->load($pageURL, $parsed);
+$page->load($pageURL, true);
 if ($page->useEngine) {
 	// Page being loaded wants to use the engine to be rendered
 	if ($page->header) {
@@ -207,7 +206,8 @@ if ($page->useEngine) {
 			echo 'There was an error in the ini file for the template: An element did not have an "element" value. Please check your ini file<br>';
 		}
 	}
-	$html->find('html', 0)->innertext = preg_replace_callback('|\[(.*?)\]|', 'getSnippetCode', $html->innertext);
+	$html->find('html', 0)->innertext = preg_replace_callback('/(?<!dummy_)(\[(.*?)\])/', 'getSnippetCode', $html->innertext);
+	$html->find('html', 0)->innertext = preg_replace('/(dummy_)(\[(.*?)\])/', '$2', $html->innertext);
 	// Add required script files
 	$includeScripts = array('jquery', 'jqueryui');
 	foreach ($includeScripts as $script) {
