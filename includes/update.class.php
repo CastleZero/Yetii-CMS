@@ -111,6 +111,10 @@ class Update {
 			}
 			foreach ($this->files as $file) {
 				// Need to check if the destination directory exists!
+				$pathInfo = pathinfo($file);
+				if (!is_dir($fileInfo['dirname'])) {
+					mkdir($fileInfo['dirname'], 0777, true);
+				}
 				if (!rename($this->unpackedLocation . '/' . $file, INSTALLURL . $file)) {
 					echo 'Error moving ' . $file . '<br>'; 
 				}
@@ -122,6 +126,8 @@ class Update {
 			foreach ($this->redundantFiles as $file) {
 				if (is_file($file)) {
 					unlink($file);
+				} else if (is_dir($file)) {
+					rmdir($file);
 				}
 			}
 		}

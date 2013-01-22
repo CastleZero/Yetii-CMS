@@ -12,7 +12,8 @@ $oldFiles = array(
 	'admin/images/delete.php',
 	'admin/images/index.php',
 	'admin/images/manage.php',
-	'admin/images/upload.php'
+	'admin/images/upload.php',
+	'admin/images'
 );
 
 /**
