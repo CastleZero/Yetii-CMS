@@ -8,7 +8,11 @@
 */
 $oldFiles = array(
 	'admin/links.php',
-	'includes/upgrade/upgrade.class.php'
+	'includes/upgrade/upgrade.class.php',
+	'admin/images/delete.php',
+	'admin/images/index.php',
+	'admin/images/manage.php',
+	'admin/images/upload.php'
 );
 
 /**
@@ -38,10 +42,6 @@ $currentFiles = array(
 	'admin/settings.php',
 	'admin/snippets.php',
 	'admin/upgrade.php',
-	'admin/images/delete.php',
-	'admin/images/index.php',
-	'admin/images/manage.php',
-	'admin/images/upload.php',
 	'images/core/cross.png',
 	'images/core/tick.png',
 	'includes/functions.inc.php',
