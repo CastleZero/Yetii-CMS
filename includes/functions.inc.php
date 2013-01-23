@@ -60,7 +60,7 @@ function GetLocaleText($text) {
     }
 }
 
-function UsersAuth() {
+function usersAuth() {
     if (isset($_SESSION['userId'])) {
         $mapper = new Mapper();
         return $mapper->GetUsersAuth($_SESSION['userId']);

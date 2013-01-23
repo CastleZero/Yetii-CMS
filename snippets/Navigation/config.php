@@ -1,9 +1,10 @@
 <?php
 $pageName = 'Edit navigation links';
 $requiredAuth = 3;
+require_once('navigationmapper.class.php');
 ?>
 <script>
-	function UpdateNewPositions() {
+	function updateNewPositions() {
 		numberOfLinks = 0;
 		$('#sortableList li').each(function(index) {
 			numberOfLinks++;
@@ -16,24 +17,38 @@ $requiredAuth = 3;
 		$('input[name="numberOfLinks"]').val(numberOfLinks);
 	}
 
-	function DeleteLink(link) {
+	function deleteLink(link) {
 		$('li[name="' + link + '"]').remove();
-		UpdateNewPositions();
+		updateNewPositions();
 	}
 
 	$(function() {
 		$("#sortableList").sortable({
 			update: function(event, ui) {
-				UpdateNewPositions();
+				updateNewPositions();
 			}
 		});
 
 		$("#sortableList").disableSelection();
-		UpdateNewPositions();
+		updateNewPositions();
 
 		$('#addNewLink').click(function() {
-			$('#sortableList').append('<li name="' + numberOfLinks + '"><input type="number" name="' + numberOfLinks + '_order" value=""><label> Name <input type="text" name="' + numberOfLinks + '_name" value="New Link ' + numberOfLinks + '"></label><label> URL: <label>Use Root (<?php echo ROOTURL; ?>)<input type="checkbox" name="' + numberOfLinks + '_useRoot" checked="checked"><input type="text" name="' + numberOfLinks + '_url"></label><label> Title <input type="text" name="' + numberOfLinks + '_title"></label><label> Required Auth <input type="number" name="' + numberOfLinks + '_requiredAuth" value="0"></label> <a href="javascript:DeleteLink(' + numberOfLinks + ');">Delete Link</a></li>');
-			UpdateNewPositions();
+			$('#sortableList').append('<li name="' + numberOfLinks + '">\
+				<input type="number" name="' + numberOfLinks + '_order" value="">\
+				<label> Name <input type="text" name="' + numberOfLinks + '_name" value="New Link ' + numberOfLinks + '"></label>\
+				<label for="' + numberOfLinks + '_url">\
+					URL: </label><label>Use Root (<?php echo ROOTURL; ?>) <input type="checkbox" name="' + numberOfLinks + '_useRoot" checked="checked"></label>\
+				<input type="text" name="' + numberOfLinks + '_url" id="' + numberOfLinks + '_url">\
+				<label> Title <input type="text" name="' + numberOfLinks + '_title"></label>\
+				<label>Open Target\
+					<select name="' + numberOfLinks + '_target">\
+						<option value="_self">Current Tab</option>\
+						<option value="_blank">New Tab</option>\
+					</select>\
+				</label>\
+				<label> Required Auth <input type="number" name="' + numberOfLinks + '_requiredAuth" value="0"></label>\
+				 <a href="javascript:deleteLink(' + numberOfLinks + ');">Delete Link</a></li>');
+			updateNewPositions();
 		});
 	});
 </script>
@@ -50,8 +65,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			$links[$linkOrder]['url'] = $_POST[$linkNumber . '_url'];
 			$links[$linkOrder]['title'] = $_POST[$linkNumber . '_title'];
 			$links[$linkOrder]['order'] = $_POST[$linkNumber . '_order'];
-			$links[$linkOrder]['required_auth'] = $_POST[$linkNumber . '_requiredAuth'];
-			$links[$linkOrder]['use_root'] = isset($_POST[$linkNumber . '_useRoot']) ? true : false;
+			$links[$linkOrder]['requiredAuth'] = $_POST[$linkNumber . '_requiredAuth'];
+			$links[$linkOrder]['useRoot'] = isset($_POST[$linkNumber . '_useRoot']) ? true : false;
+			$links[$linkOrder]['target'] = $_POST[$linkNumber . '_target'];
 			$numberOfLinks--;
 		}
 		$linkNumber++;
@@ -59,16 +75,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	// Order the links array (of arrays) by the order
 	if (isset($links) && is_array($links)) {
 		ksort($links, SORT_NUMERIC);
-		$mapper = new Mapper();
-		$mapper->SaveLinks($links);
+		$mapper = new NavigationMapper();
+		$mapper->saveLinks($links);
 		unset($mapper);
 	} else {
 		echo 'No links provided. Please provide at least 1 link.<br>';
 	}
 }
 // Get all the links
-$mapper = new Mapper();
-$linksArray = $mapper->GetLinks();
+$mapper = new NavigationMapper();
+$linksArray = $mapper->getLinks();
 unset($mapper);
 // Create a table with all the links
 ?>
@@ -83,16 +99,25 @@ Drag around the list below to re-order the links. Edit any links as required.<br
 				$numberOfLinks++;
 				$order = $linkArray['order'];
 				$url = $linkArray['url'];
-				$useRoot = $linkArray['use_root'];
+				$useRoot = $linkArray['useRoot'];
 				$title = $linkArray['title'];
+				$target = $linkArray['target'];
 				$name = $linkArray['name'];
-				$requiredAuth = $linkArray['required_auth'];
+				$requiredAuth = $linkArray['requiredAuth'];
 				?>
 				<li name="<?php echo $numberOfLinks; ?>">
 					<input type="number" name="<?php echo $numberOfLinks; ?>_order">
 					<label>Name <input type="text" name="<?php echo $numberOfLinks; ?>_name" value="<?php echo $name; ?>"></label>
-					URL: <label>Use Root (<?php echo ROOTURL; ?>) <input type="checkbox" name="<?php echo $numberOfLinks; ?>_useRoot" <?php if ($useRoot) echo 'checked="checked"'; ?>></label><input type="text" name="<?php echo $numberOfLinks; ?>_url" value="<?php echo $url; ?>">
+					<label for="<?php echo $numberOfLinks; ?>_url">
+						URL: </label><label>Use Root (<?php echo ROOTURL; ?>) <input type="checkbox" name="<?php echo $numberOfLinks; ?>_useRoot" <?php if ($useRoot) echo 'checked="checked"'; ?>></label>
+					<input type="text" name="<?php echo $numberOfLinks; ?>_url" id="<?php echo $numberOfLinks; ?>_url" value="<?php echo $url; ?>">
 					<label>Title <input type="text" name="<?php echo $numberOfLinks; ?>_title" value="<?php echo $title; ?>"></label>
+					<label>Open Target
+					<select name="<?php echo $numberOfLinks; ?>_target">
+						<option value="_self" <?php if ($target == '_self') echo 'selected="selected"'; ?>>Current Tab</option>
+						<option value="_blank" <?php if ($target == '_blank') echo 'selected="selected"'; ?>>New Tab</option>
+					</select>
+					</label>
 					<label>Required Auth <input type="number" name="<?php echo $numberOfLinks; ?>_requiredAuth" value="<?php echo $requiredAuth; ?>"></label>
 					<a href="javascript:DeleteLink(<?php echo $numberOfLinks; ?>);">Delete Link</a>
 				</li>

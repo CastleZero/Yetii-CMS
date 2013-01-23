@@ -1,15 +1,16 @@
 <?php
 // Get all the links
-$mapper = new Mapper();
-$linksArray = $mapper->GetLinks();
+require_once('navigationmapper.class.php');
+$mapper = new NavigationMapper();
+$links = $mapper->getLinks();
 unset($mapper);
-if ($linksArray !== false) {
-	$links = '';
+if ($links !== false) {
+	$code = '';
 	$numberOfLinks = 0;
 	// Get the number of links to be displayed
-	foreach($linksArray as $linkArray) {
-		if ($linkArray['order'] >= 0) {
-			if ($linkArray['required_auth'] <= UsersAuth()) {
+	foreach($links as $link) {
+		if ($link['order'] >= 0) {
+			if ($link['requiredAuth'] <= usersAuth()) {
 				$numberOfLinks++;	
 			}
 		}
@@ -17,22 +18,22 @@ if ($linksArray !== false) {
 	if ($numberOfLinks < 3) {
 		$numberOfLinks = 3;
 	}
-	$linkWidth = 100/$numberOfLinks;
-	$linkPadding = (15/$numberOfLinks)/2;
+	$width = 100/$numberOfLinks;
+	$padding = (15/$numberOfLinks)/2;
 	// Create a string with all the links as list items
-	foreach($linksArray as $linkArray) {
-		if ($linkArray['order'] >= 0) {
-			if ($linkArray['required_auth'] <= UsersAuth()) {
-				if ($linkArray['use_root']) {
-					$linkURL = ROOTURL . $linkArray['url'];
+	foreach($links as $link) {
+		if ($link['order'] >= 0) {
+			if ($link['requiredAuth'] <= usersAuth()) {
+				if ($link['useRoot']) {
+					$url = ROOTURL . $link['url'];
 				} else {
-					$linkURL = $linkArray['url'];
+					$url = $link['url'];
 				}
-				$links .= '<li style="width: ' . $linkWidth . '%;"><a href="' . $linkURL . '" title="' . $linkArray['title'] . '">' . $linkArray['name'] . '</a></li>';
+				$code .= '<li style="width: ' . $width . '%;"><a href="' . $url . '" title="' . $link['title'] . '" target="' . $link['target'] . '">' . $link['name'] . '</a></li>';
 			}
 		}
 	}
-	echo '<ul class="clearfix">' . $links . '</ul>';
+	echo '<ul class="clearfix">' . $code . '</ul>';
 } else {
 	echo 'No links stored in the database';
 }

@@ -2,7 +2,7 @@
 
 class Yetii {
 	private $name, $channel, $template, $language, $update = false;
-	const VERSION = '0.2.7';
+	const VERSION = '0.2.8';
 
 	public function loadSettings() {
 		$mapper = new Mapper();
@@ -44,7 +44,7 @@ class Yetii {
 
 	public function getUpdate() {
 		$update = new Update();
-		$update->getInformation($this->channel);
+		$update->getInformation($this->channel, self::VERSION);
 		if ($update->getError() === false && self::VERSION < $update->getVersion()) {
 			return $update;
 		} else {

@@ -1,8 +1,8 @@
 <?php
 class Update {
-	private $error = false, $version, $url, $unpackedName, $localZipLocation, $unpackedLocation, $files, $redundantFiles;
+	private $error = false, $version, $oldVersion, $url, $unpackedName, $localZipLocation, $unpackedLocation, $files, $redundantFiles;
 
-	public function getInformation($channel) {
+	public function getInformation($channel, $oldVersion) {
 		$RESTRequest = new RESTRequest('http://yetii.net/rest/channels/' . VERSIONCHANNEL, 'GET');
 		$RESTRequest->execute();
 		$latestUpdate = json_decode($RESTRequest->getResponse(), true);
@@ -14,6 +14,7 @@ class Update {
 				$this->version = $latestUpdate['version'];
 				$this->url = $latestUpdate['updateURL'];
 				$this->unpackedName = $latestUpdate['unpackedName'];
+				$this->oldVersion = $oldVersion;
 			}
 		} else {
 			$this->error = true;
@@ -107,11 +108,12 @@ class Update {
 		} else {
 			if (is_file($unpackedLocation . '/beforeUpgrade.php')) {
 				// A script with actions to perform before the new files are moved is included in this upgrade
+				$update = $this;
 				require_once($unpackedLocation . '/beforeUpgrade.php');
 			}
 			foreach ($this->files as $file) {
 				// Need to check if the destination directory exists!
-				$pathInfo = pathinfo($file);
+				$fileInfo = pathinfo($file);
 				if (!is_dir($fileInfo['dirname'])) {
 					mkdir($fileInfo['dirname'], 0777, true);
 				}
@@ -121,6 +123,7 @@ class Update {
 			}
 			if (is_file($unpackedLocation . '/afterUpgrade.php')) {
 				// A script with actions to perform after the new files are moved is included in this upgrade
+				$update = $this;
 				require_once($unpackedLocation . '/afterUpgrade.php');
 			}
 			foreach ($this->redundantFiles as $file) {
@@ -139,6 +142,10 @@ class Update {
 
 	public function getVersion() {
 		return $this->version;
+	}
+
+	public function __get($name) {
+		return $this->$name;
 	}
 }
 ?>

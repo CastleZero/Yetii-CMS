@@ -187,7 +187,7 @@ if ($page->useEngine) {
 					if ($replace == 'after') {
 						$fillContent = $html->find($elementName, 0)->innertext . $fillContent;
 					} else if ($replace == 'before') {
-						$fillContent = $fillContent . $html->find($elementName, 0)->innertext;
+						$fillContent .= $html->find($elementName, 0)->innertext;
 					}
 					$html->find($elementName, 0)->innertext = $fillContent;
 				} else if ($html->find('div[id=' . $elementName . ']')) {
@@ -195,7 +195,7 @@ if ($page->useEngine) {
 					if ($replace == 'after') {
 						$fillContent = $html->find('div[id=' . $elementName . ']', 0)->innertext . $fillContent;
 					} else if ($replace == 'before') {
-						$fillContent = $fillContent . $html->find('div[id=' . $elementName . ']', 0)->innertext;
+						$fillContent .= $html->find('div[id=' . $elementName . ']', 0)->innertext;
 					}
 					$html->find('div[id=' . $elementName . ']', 0)->innertext = $fillContent;
 				} else {
@@ -206,20 +206,20 @@ if ($page->useEngine) {
 			echo 'There was an error in the ini file for the template: An element did not have an "element" value. Please check your ini file<br>';
 		}
 	}
-	$html->find('html', 0)->innertext = preg_replace_callback('/(?<!dummy_)(\[(.*?)\])/', 'getSnippetCode', $html->innertext);
-	$html->find('html', 0)->innertext = preg_replace('/(dummy_)(\[(.*?)\])/', '$2', $html->innertext);
 	// Add required script files
 	$includeScripts = array('jquery', 'jqueryui');
 	foreach ($includeScripts as $script) {
 		switch ($script) {
 			case 'jquery':
-				$html->find('head', 0)->innertext = $html->find('head', 0)->innertext . '<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>';
+				$html->find('head', 0)->innertext .= '<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>';
 				break;
 			case 'jqueryui':
-				$html->find('head', 0)->innertext = $html->find('head', 0)->innertext . '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>';
+				$html->find('head', 0)->innertext .= '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>';
 				break;
 		}
 	}
+	$html->find('html', 0)->innertext = preg_replace_callback('/(?<!dummy_)(snippet\[(.*?)\])/', 'getSnippetCode', $html->innertext);
+	$html->find('html', 0)->innertext = preg_replace('/(dummy_)(snippet\[(.*?)\])/', '$2', $html->innertext);
 	// Save and display the HTML
 	$html = $html->save();
 	echo $html;

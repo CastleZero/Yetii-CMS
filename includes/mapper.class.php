@@ -8,8 +8,6 @@ class Mapper {
 	const QUERY_UPDATE_PAGE = "UPDATE pages SET page_name = ?, required_auth = ?, page_content = ?, meta_description = ? WHERE page_url = ?";
 	const QUERY_GET_PAGES = "SELECT page_url FROM pages";
 	const QUERY_GET_SNIPPET_VARIABLES = "SELECT variables FROM snippets WHERE snippet_name = ?";
-	const QUERY_GET_LINKS = "SELECT name, url, title, `order`, required_auth, use_root FROM links ORDER BY `order` ASC";
-	const QUERY_ADD_LINK = "INSERT INTO links (name, url, title, `order`, required_auth, use_root) VALUES (?, ?, ?, ?, ?, ?)";
 	const QUERY_REGISTER_USER = "INSERT INTO users (email, password, display_name, salt, auth_level) VALUES (?, ?, ?, ?, ?)";
 	const QUERY_GET_USER_INFORMATION = "SELECT email, password, display_name, auth_level FROM users WHERE user_id = ?";
 	const QUERY_CHECK_USER_EMAIL = "SELECT salt FROM users WHERE email = ?";
@@ -107,36 +105,6 @@ class Mapper {
 			return $pages;
 		} else {
 			return false;
-		}
-	}
-
-	public function GetLinks() {
-		$stmt = $this->dbh->prepare(self::QUERY_GET_LINKS);
-		$stmt->execute();
-		if ($stmt->fetchColumn() !== false) {
-			$stmt = $this->dbh->prepare(self::QUERY_GET_LINKS);
-			$stmt->execute();
-			$links = $stmt->fetchAll();
-			return $links;
-		} else {
-			return false;
-		}
-	}
-
-	public function SaveLinks($links) {
-		$stmt = $this->dbh->prepare('TRUNCATE links');
-		$stmt->execute();
-		foreach ($links as $link) {
-			$this->AddLink($link);
-		}
-	}
-
-	public function AddLink($link) {
-		$stmt = $this->dbh->prepare(self::QUERY_ADD_LINK);
-		if ($stmt->execute(array($link['name'], $link['url'], $link['title'], $link['order'], $link['required_auth'], $link['use_root']))) {
-			return true;
-		} else {
-			var_dump($this->dbh->errorInfo());
 		}
 	}
 

@@ -27,6 +27,7 @@ $currentFiles = array(
 	// 1.0
 	'.htaccess',
 	'404.php',
+	//'afterUpgrade.php',
 	'engine.php',
 	'license.txt',
 	'login.php',
@@ -73,6 +74,8 @@ $currentFiles = array(
 	'snippets/Navigation/index.php',
 	'snippets/Navigation/Navigation.ini',
 	'snippets/User Menu/index.php',
+	'snippets/User Menu/config.php',
+	'snippets/User Menu/User Menu.ini',
 	'templates/default/default.html',
 	'templates/default/default.ini',
 	'templates/default/css/global.css',

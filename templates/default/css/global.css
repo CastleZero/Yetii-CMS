@@ -143,9 +143,8 @@ Base Layout
 
 html { 
 	overflow-y: scroll;
-	background: #FFF;
+	background: #F2F2F2 url('../images/background.png');
 	height: 100%;
-	background-image: url('../images/background.png');
 }
 
 body {
@@ -158,34 +157,84 @@ body {
 Typography
 -------------------------------------------------- */
 
+body {
+    font-family: Georgia;
+    font-style: normal;
+    font-weight: 400;
+    text-align: left;
+}
+
+blockquote {
+    font-style: italic;
+    font-weight: 400;
+    font-size: 1.625em;
+    line-height: 1.4230769230769231em;
+    margin-bottom: 0.9615384615384616em;
+}
+
 h1 {
-    font-size: 2em;
-    margin: 0.67em 0;
+    font-size: 4.25em;
+    line-height: 1.1029411764705883em;
+    margin-bottom: 0.36764705882352944em;
+    font-style: normal;
+    font-weight: 400;
+    font-family: Mate;
 }
 
 h2 {
-    font-size: 1.5em;
-    margin: 0.83em 0;
+    font-size: 2.625em;
+    line-height: 1.1904761904761905em;
+    margin-bottom: 0.5952380952380952em;
+    font-style: normal;
+    font-weight: 400;
+    font-family: 'Noticia Text';
 }
 
 h3 {
-	font-size: 1.17em;
-    margin: 1em 0;
+    font-size: 1.625em;
+    line-height: 1.9230769230769231em;
+    margin-bottom: 0.9615384615384616em;
+    font-style: normal;
+    font-weight: 400;
+    font-family: Actor;
 }
 
 h4 {
+    margin-bottom: 1.5625em;
+    font-weight: 400;
+    font-style: normal;
+    font-family: Actor;
     font-size: 1em;
-    margin: 1.33em 0;
+    line-height: 1.6171875em;
 }
 
 h5 {
-    font-size: 0.83em;
-    margin: 1.67em 0;
+    margin-bottom: 1.5625em;
+    font-style: normal;
+    font-weight: 400;
+    font-family: Actor;
+    font-size: 1em;
+    line-height: 1.6171875em;
 }
 
 h6 {
-    font-size: 0.75em;
-    margin: 2.33em 0;
+    font-weight: 400;
+    font-style: normal;
+    margin-bottom: 1.5625em;
+    font-family: Actor;
+    font-size: 1em;
+    line-height: 1.6171875em;
+}
+
+p {
+    margin-bottom: 1.5625em;
+    font-size: 1em;
+    line-height: 1.6171875em;
+}
+
+p.intro {
+    font-size: 1.125em;
+    margin-bottom: 1.3888888888888888em;
 }
 
 /* --------------------------------------------------
