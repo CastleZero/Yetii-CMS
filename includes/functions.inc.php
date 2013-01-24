@@ -531,6 +531,12 @@ function getSnippetCode($code) {
     }
     $snippet = new Snippet();
     if ($snippet->load($snippetName, false, $variables)) {
+        while (preg_match('/(?<!dummy_)(snippet\[(.*?)\])/', $snippet->getContents()) != 0) {
+            $snippet->setContents(preg_replace_callback('/(?<!dummy_)(snippet\[(.*?)\])/', 'getSnippetCode', $snippet->getContents()));
+        }
+         while (preg_match('/(dummy_)(snippet\[(.*?)\])/', $snippet->getContents()) != 0) {
+            $snippet->setContents(preg_replace('/(dummy_)(snippet\[(.*?)\])/', '$2', $snippet->getContents()));
+        }
         return $snippet->getContents();
     } else {
         return $snippet->getError();

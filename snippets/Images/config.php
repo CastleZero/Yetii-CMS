@@ -4,7 +4,22 @@ $requiredAuth = 3;
 ?>
 <a href="upload.php">Upload Image</a><br>
 <?php
-$images = glob(IMAGESFOLDER . '*');
+function traverse_hierarchy($path) {
+    $return_array = array();
+    $dir = opendir($path);
+    while(($file = readdir($dir)) !== false)
+    {
+        if($file[0] == '.') continue;
+        $fullpath = $path . '/' . $file;
+        if(is_dir($fullpath))
+            $return_array = array_merge($return_array, traverse_hierarchy($fullpath));
+        else // your if goes here: if(substr($file, -3) == "jpg") or something like that
+            $return_array[] = $fullpath;
+    }
+    return $return_array;
+}
+$images = traverse_hierarchy(IMAGESFOLDER);
+//$images = glob(IMAGESFOLDER . '*');
 if (!empty($images)) {
 	// There are some photos in the photos directory
 	?>
@@ -20,6 +35,7 @@ if (!empty($images)) {
 				// File is an image
 				$imageInfo = getimagesize($image);
 				$fileName = str_replace(IMAGESFOLDER, '', $image);
+				$fileName = substr($fileName, 1);
 				$fileSize = round(filesize($image)/1000/1000, 2); // Get the size in Megabytes to 2 decimal places
 				?>
 				<tr>

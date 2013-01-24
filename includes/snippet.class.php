@@ -117,6 +117,10 @@ class Snippet {
 		return $this->contents;
 	}
 
+	public function setContents($contents) {
+		$this->contents = $contents;
+	}
+
 	public function edit() {
 		if ($this->editing) {
 			if ($this->isDynamic) {
