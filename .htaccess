@@ -9,22 +9,29 @@ RewriteEngine On
 RewriteCond %{SCRIPT_FILENAME} !-f
 # ... but the script filename.php is a file
 RewriteCond %{SCRIPT_FILENAME}.php -f
+# ... and the require URI does not have a trailing slash
+RewriteCond %{REQUEST_URI} !(.*)/$
 # ... rewrite it to the engine
 RewriteRule ^(.*)$ engine.php?page=$1.php [QSA,L]
 
 # If the requested script filename is a directory
 RewriteCond %{SCRIPT_FILENAME} -d
+# ... and the script filename does have a trailing slash...
+RewriteCond %{REQUEST_URI} (.*)/$
 # ... and an index file exists
-RewriteCond %{SCRIPT_FILENAME}index.php -f
+RewriteCond %{SCRIPT_FILENAME}/index.php -f
 # .. rewrite to the engine
 RewriteRule ^(.*)$ engine.php?page=$1index.php [QSA,L]
 
 # If the requested script filename is a directory
 RewriteCond %{SCRIPT_FILENAME} -d
+# ... and the request URI does not have a trailing slash...
+RewriteCond %{REQUEST_URI} !(.*)/$
 # ... and an index file exists
 RewriteCond %{SCRIPT_FILENAME}/index.php -f
 # .. rewrite to the engine
-RewriteRule ^(.*)$ engine.php?page=$1/index.php [QSA,L]
+# ... redirect and add a trailing slash (which will then get the index file)
+RewriteRule (.*) %{REQUEST_URI}/ [R=301,L]
 
 # If the file is a PHP or HTML file
 RewriteCond %{SCRIPT_FILENAME} \.(php|html)$
