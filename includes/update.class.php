@@ -106,10 +106,10 @@ class Update {
 		if (INSTALLURL !== '') {
 			echo 'Sorry, automatic upgrades are not supported with a custom install url at this time.<br>';
 		} else {
-			if (is_file($unpackedLocation . '/beforeUpgrade.php')) {
+			if (is_file($this->unpackedLocation . '/beforeUpgrade.php')) {
 				// A script with actions to perform before the new files are moved is included in this upgrade
 				$update = $this;
-				require_once($unpackedLocation . '/beforeUpgrade.php');
+				require_once($this->unpackedLocation . '/beforeUpgrade.php');
 			}
 			foreach ($this->files as $file) {
 				// Need to check if the destination directory exists!
@@ -121,10 +121,12 @@ class Update {
 					echo 'Error moving ' . $file . '<br>'; 
 				}
 			}
-			if (is_file($unpackedLocation . '/afterUpgrade.php')) {
+			if (is_file($this->unpackedLocation . '/afterUpgrade.php')) {
 				// A script with actions to perform after the new files are moved is included in this upgrade
 				$update = $this;
-				require_once($unpackedLocation . '/afterUpgrade.php');
+				require_once($this->unpackedLocation . '/afterUpgrade.php');
+			} else {
+				echo 'no after upgrade file found!<br>';
 			}
 			foreach ($this->redundantFiles as $file) {
 				if (is_file($file)) {

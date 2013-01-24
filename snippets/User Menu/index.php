@@ -1,6 +1,7 @@
 <?php
-$settings = parse_ini_file('settings.ini');
-extract($settings);
+if ($settings = @parse_ini_file('settings.ini')) {
+	extract($settings);
+}
 if (isset($_SESSION['displayName'])) {
 	// User is logged in
 	if (!isset($showWhenLoggedIn) || $showWhenLoggedIn != 'false') {
