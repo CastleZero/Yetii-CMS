@@ -73,6 +73,7 @@ $currentFiles = array(
 	'snippets/Navigation/config.php',
 	'snippets/Navigation/index.php',
 	'snippets/Navigation/Navigation.ini',
+	'snippets/Navigation/navigationmapper.class.php',
 	'snippets/User Menu/index.php',
 	'snippets/User Menu/config.php',
 	'snippets/User Menu/User Menu.ini',
