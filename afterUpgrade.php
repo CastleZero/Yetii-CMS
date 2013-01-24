@@ -21,6 +21,8 @@ if ($update->oldVersion < '0.2.8') {
 	?>
 	Snippets now have the syntax "snippet[<i>SnippetName</i>]". <a href="http://yetii.net/changelog#0.2.8" title="View changelog for version 0.2.8">View full changelog</a><br>
 	<?php
+} else {
+	echo 'Version higher than 0.2.7<br>';
 }
 
 //unlink(__FILE__);
