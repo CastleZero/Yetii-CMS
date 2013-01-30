@@ -83,9 +83,9 @@ if ($page->useEngine) {
 	} else {
 		$templateFile = $pageURL;
 	}
-	if (isset($_GET['template']) && is_dir($_GET['template'])) {
+	if (isset($_GET['template']) && is_dir(TEMPLATESFOLDER . $_GET['template'])) {
 		// We want a custom template
-		$templateFolder = $_GET['template']; 
+		$templateFolder = TEMPLATESFOLDER . $_GET['template'] . '/'; 
 	} else {
 		$templateFolder = TEMPLATESFOLDER . TEMPLATE . '/';
 	}
@@ -218,8 +218,10 @@ if ($page->useEngine) {
 				break;
 		}
 	}
-	$html->find('html', 0)->innertext = preg_replace_callback('/(?<!dummy_)(snippet\[(.*?)\])/', 'getSnippetCode', $html->innertext);
-	$html->find('html', 0)->innertext = preg_replace('/(dummy_)(snippet\[(.*?)\])/', '$2', $html->innertext);
+	if (!($pageURL == 'admin/pages' || $pageURL == 'admin/pages.php')) {
+		$html->find('html', 0)->innertext = preg_replace_callback('/(?<!dummy_)(snippet\[(.*?)\])/', 'getSnippetCode', $html->innertext);
+		$html->find('html', 0)->innertext = preg_replace('/(dummy_)(snippet\[(.*?)\])/', '$2', $html->innertext);
+	}
 	// Save and display the HTML
 	$html = $html->save();
 	echo $html;

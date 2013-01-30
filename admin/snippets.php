@@ -2,6 +2,9 @@
 $pageName = 'Edit Snippets';
 $requiredAuth = 3;
 if (isset($_GET['snippet'])) {
+	?>
+	<a href="snippets.php" title="Back to snippets summary page">Back to summary page</a><br>
+	<?php
 	// Editing snippet
 	if (isset($_POST['snippetCode'])) {
 		$code = $_POST['snippetCode'];
@@ -12,18 +15,26 @@ if (isset($_GET['snippet'])) {
 	// Load the snippet unparsed
 	if ($snippet->load($_GET['snippet'], true, array(), $code)) {
 		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-			$snippet->save($code);
+			if ($snippet->save($code)) {
+				echo 'Snippet saved!<br>';
+			} else {
+				echo 'Error saving snippet. Please try again.<br>';
+			}
 		}
 		?>
 		<form method="POST">
-			<?php CreateEditor($snippet->getContents(), 'snippetCode'); ?>
+			<?php createEditor($snippet->getContents(), 'snippetCode'); ?>
 			<input type="submit" value="Save Changes">
 		</form>
+		Code for snippet: dummy_snippet[<?php echo $_GET['snippet']; ?>]
 	 	<?php
 	} else {
 		echo $snippet->getError();
 	}
 } else {
+	?>
+	<a href="addsnippet.php" title="Create a new blank snippet">New Snippet</a><br>
+	<?php
 	$snippets = GetSnippets();
 	if (count($snippets) > 0) {
 		// We have at least 1 snippet

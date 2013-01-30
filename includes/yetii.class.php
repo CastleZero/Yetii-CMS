@@ -2,7 +2,7 @@
 
 class Yetii {
 	private $name, $channel, $template, $language, $update = false;
-	const VERSION = '0.3';
+	const VERSION = '0.3.1';
 
 	public function loadSettings() {
 		$mapper = new Mapper();

@@ -5,6 +5,10 @@ AddType 'text/html; charset=iso-8859-15' html
 <IfModule mod_rewrite.c>
 RewriteEngine On
 
+# Remove the www
+RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+RewriteRule ^(.*)$ http://%1%{REQUEST_URI} [R=301,QSA,NC,L]
+
 # If the requested script filename is not a file
 RewriteCond %{SCRIPT_FILENAME} !-f
 # ... but the script filename.php is a file
