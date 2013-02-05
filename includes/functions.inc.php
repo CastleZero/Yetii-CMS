@@ -534,12 +534,22 @@ function getSnippetCode($code) {
         while (preg_match('/(?<!dummy_)(snippet\[(.*?)\])/', $snippet->getContents()) != 0) {
             $snippet->setContents(preg_replace_callback('/(?<!dummy_)(snippet\[(.*?)\])/', 'getSnippetCode', $snippet->getContents()));
         }
-         while (preg_match('/(dummy_)(snippet\[(.*?)\])/', $snippet->getContents()) != 0) {
+        while (preg_match('/(dummy_)(snippet\[(.*?)\])/', $snippet->getContents()) != 0) {
             $snippet->setContents(preg_replace('/(dummy_)(snippet\[(.*?)\])/', '$2', $snippet->getContents()));
         }
         return $snippet->getContents();
     } else {
         return $snippet->getError();
     }
+}
+
+function addFilePaths($tag) {
+    if (substr($tag[1], 0, 1) != '/' && substr($tag[1], 0, 4) != 'http') {
+        // Only replace files that are relative to the template folder
+        $newTag = str_replace($tag[1], ROOTURL . INSTALLURL . TEMPLATESFOLDER . TEMPLATE . '/' . $tag[1], $tag[0]);
+    } else {
+        $newTag = $tag[0];
+    }
+    return $newTag;
 }
 ?>

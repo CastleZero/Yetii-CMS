@@ -1,1 +1,1 @@
-Yetii CMS
+Created by <a href="http://josephduffy.me" title="Joseph Duffy's Portfolio Website">Joseph Duffy</a> using <a href="http://yetii.net" title="Yetii CMS's Website">Yetii CMS</a>

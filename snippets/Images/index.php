@@ -14,7 +14,7 @@ if (isset($imageName)) {
 	}
 	if ($imageURL) {
 		?>
-		<img src="<?php echo $imageURL; ?>">
+		<img src="<?php echo $imageURL; ?>" <?php echo (isset($imageAlt)) ? 'alt="' . $imageAlt . '"' : ''; ?>>
 		<?php
 	} else {
 		echo 'Error loading image "' . $imageName . '".<br>';
