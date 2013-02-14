@@ -110,6 +110,8 @@ if ($page->useEngine) {
 	$pageContents = $page->contents;
 	// Non-OO method
 	$html = file_get_html($HTMLTemplate);
+	// Replace the page title. Only seems to work if it's (one of) the first things to get altered. Odd.
+	$html->find('head', 0)->find('title', 0)->innertext = $pageTitle;
 	// Add the meta description to the header
 	$changedMetaDescription = false;
 	foreach ($html->find('meta') as $metaTag) {
@@ -124,6 +126,7 @@ if ($page->useEngine) {
 			}
 		}
 	}
+	// Add the meta description
 	if (!$changedMetaDescription) {
 		$totalMetaTags = count($html->find('meta'));
 		$html->find('meta', $totalMetaTags -1)->outertext = $html->find('meta', $totalMetaTags -1)->outertext . '<meta name="description" content="' . $page->metaDescription . '">';
@@ -170,12 +173,15 @@ if ($page->useEngine) {
 				// We have content to fill, try and find the element
 				if ($html->find($elementName)) {
 					// Element is a default element (e.g. <title>, <header> or <nav>)
-					if ($replace == 'after') {
-						$fillContent = $html->find($elementName, 0)->innertext . $fillContent;
-					} else if ($replace == 'before') {
-						$fillContent .= $html->find($elementName, 0)->innertext;
+					foreach ($html->find($elementName) as $element) {
+						if ($replace == 'after') {
+							$fillContent = $html->element->innertext . $fillContent;
+						} else if ($replace == 'before') {
+							$fillContent .= $element->innertext;
+						}
+						$element->innertext = $fillContent;
 					}
-					$html->find($elementName, 0)->innertext = $fillContent;
+					
 				} else if ($html->find('#' . $elementName)) {
 					// Element has been specified via its id
 					foreach ($html->find('#' . $elementName) as $element) {
@@ -199,8 +205,8 @@ if ($page->useEngine) {
 	$html->find('html', 0)->innertext = preg_replace_callback('/<link[^>]+href\s*=\s*[\'"]([^\'"]+)[\'"][^>]*>/', 'addFilePaths', $html->find('html', 0)->innertext);
 	// Replace snippets
 	if (!($pageURL == 'admin/pages' || $pageURL == 'admin/pages.php')) {
-		$html->find('html', 0)->innertext = preg_replace_callback('/(?<!dummy_)(snippet\[(.*?)\])/', 'getSnippetCode', $html->innertext);
-		$html->find('html', 0)->innertext = preg_replace('/(dummy_)(snippet\[(.*?)\])/', '$2', $html->innertext);
+		$html->find('html', 0)->innertext = preg_replace_callback('/(?<!dummy_)(snippet\[(.*?)\])/', 'getSnippetCode', $html->find('html', 0)->innertext);
+		$html->find('html', 0)->innertext = preg_replace('/(dummy_)(snippet\[(.*?)\])/', '$2', $html->find('html', 0)->innertext);
 	}
 	// Save and display the HTML
 	$html = $html->save();

@@ -1,7 +1,7 @@
 <?php
 if ($showLogo) {
 	?>
-	<a href="<?php echo ROOTURL; ?>"><img src="<?php echo $imageURL; ?>" alt="Go Home"></a>
+	<a href="<?php echo ROOTURL; ?>"><img src="<?php echo $imageURL; ?>" alt="<?php echo WEBSITENAME; ?>'s Logo"></a>
 	<?php
 }
 if ($showText) {

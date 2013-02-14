@@ -29,7 +29,12 @@ if ($links !== false) {
 				} else {
 					$url = $link['url'];
 				}
-				$code .= '<li style="width: ' . $width . '%;"><a href="' . $url . '" title="' . $link['title'] . '" target="' . $link['target'] . '">' . $link['name'] . '</a></li>';
+				if ($_SERVER['REQUEST_URI'] == $url || $_SERVER['REQUEST_URI'] == $url . '.php' || $_SERVER['REQUEST_URI'] == substr($url, 0, -4)) {
+					$class = ' class="currentPage"';
+				} else {
+					$class = '';
+				}
+				$code .= '<li style="width: ' . $width . '%;"' . $class . '><a href="' . $url . '" title="' . $link['title'] . '" target="' . $link['target'] . '">' . $link['name'] . '</a></li>';
 			}
 		}
 	}
