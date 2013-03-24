@@ -1,6 +1,5 @@
 <?php
 $pageName = 'Admin Area';
-$requiredAuth = 3;
 ?>
 <h1>Admin Area</h1>
 <h2>Information</h2>

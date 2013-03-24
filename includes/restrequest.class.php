@@ -9,7 +9,7 @@ class RESTRequest {
 
 	public function execute() {
 		$curl = curl_init();
-		
+
         switch (strtoupper($this->verb)) {
 			case 'GET':
 				$this->executeGET($curl);

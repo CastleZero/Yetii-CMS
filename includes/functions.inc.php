@@ -542,14 +542,4 @@ function getSnippetCode($code) {
         return $snippet->getError();
     }
 }
-
-function addFilePaths($tag) {
-    if (substr($tag[1], 0, 1) != '/' && substr($tag[1], 0, 4) != 'http') {
-        // Only replace files that are relative to the template folder
-        $newTag = str_replace($tag[1], ROOTURL . INSTALLURL . TEMPLATESFOLDER . TEMPLATE . '/' . $tag[1], $tag[0]);
-    } else {
-        $newTag = $tag[0];
-    }
-    return $newTag;
-}
 ?>

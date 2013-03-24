@@ -2,7 +2,7 @@
 
 class Yetii {
 	private $name, $channel, $template, $language, $update = false;
-	const VERSION = '0.3.3';
+	const VERSION = '0.3.4';
 
 	public function loadSettings() {
 		$mapper = new Mapper();
@@ -31,7 +31,7 @@ class Yetii {
 	}
 
 	public function checkForUpdates() {
-		
+
 	}
 
 	public function isLatestVersion() {

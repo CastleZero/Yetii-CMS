@@ -5,6 +5,9 @@ if (isset($_SESSION['userId'])) {
 	header('Location: index.php');
 	exit;
 }
+?>
+<h1>Login</h1>
+<?php
 $errors = array();
 if (isset($_GET['returnAddress'])) {
 	$returnAddress = $_GET['returnAddress'];

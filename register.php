@@ -1,6 +1,9 @@
 <?php
 $pageName = 'Register';
 $metaDescription = 'Register for an account on ' . WEBSITENAME . '.';
+?>
+<h1>Register</h1>
+<?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	// Form has been submitted
 	$errors = array();
@@ -60,9 +63,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <form method="POST">
-	<label>Display Name: </label><input type="text" name="displayName" <?php if (isset($displayName)) echo 'value="' . $displayName . '"' ?>><br>
-	<label>Email Address: </label><input type="email" name="email" <?php if (isset($email)) echo 'value="' . $email . '"' ?>><br>
-	<label>Password: </label><input type="password" name="password" <?php if (isset($password)) echo 'value="' . $password . '"' ?>><br>
-	<label>Password (again): <label><input type="password" name="passwordVerification" <?php if (isset($passwordVerification)) echo 'value="' . $passwordVerification . '"' ?>><br>
+	<label>Display Name: <input type="text" name="displayName" <?php if (isset($displayName)) echo 'value="' . $displayName . '"' ?>></label><br>
+	<label>Email Address: <input type="email" name="email" <?php if (isset($email)) echo 'value="' . $email . '"' ?>></label><br>
+	<label>Password: <input type="password" name="password" <?php if (isset($password)) echo 'value="' . $password . '"' ?>></label><br>
+	<label>Password (again): <input type="password" name="passwordVerification" <?php if (isset($passwordVerification)) echo 'value="' . $passwordVerification . '"' ?>></label><br>
 	<input type="submit" value="Register"><br>
 </form>

@@ -29,18 +29,19 @@ if (isset($_GET['pageURL'])) {
 				return;
 			}
 		}
+		$page->dummifySnippets();
 		?>
 		<form method="POST">
-			Saved To: <?php echo $page->getSavedTo(); ?><br>
+			Saved To: <?php echo $page->savedTo; ?><br>
 			Page URL: <input type="text" name="url" value="<?php echo $page->getURL(); ?>" required="required"><br>
-			<?php if ($page->getSavedTo() == 'database') {
+			<?php if ($page->savedTo == 'database') {
 				?>
 				Page Name = <input type="text" name="name" value="<?php echo $page->getName(); ?>" required="required"><br>
 				Page Required Auth = <input type="number" name="requiredAuth" value="<?php echo $page->getRequiredAuth(); ?>" required="required"><br>
 			<?php } ?>
 			Page Content
-			<?php CreateEditor($page->getContents(), 'contents'); ?>
-			<?php if ($page->getSavedTo() == 'database') {
+			<?php CreateEditor($page->getContents(), 'contents'/*, 'TinyMCE'*/); ?>
+			<?php if ($page->savedTo == 'database') {
 				?>
 				Meta Description: <input type="text" name="metaDescription" value="<?php echo $page->getMetaDescription(); ?>"><br>
 			<?php } ?>
@@ -58,14 +59,14 @@ if (isset($_GET['pageURL'])) {
 		// Page is valid
 		if (isset($_GET['confirmDelete']) && $_GET['confirmDelete']) {
 			// Delete the page
-			if ($page->getSavedTo() == 'database') {
+			if ($page->savedTo == 'database') {
 				$mapper = new Mapper();
 				if ($mapper->deletePage($url)) {
 					echo 'Page has been deleted from the database.<br>';
 				} else {
 					echo 'Page was not deleted from the database.<br>';
 				}
-			} else if ($page->getSavedTo() == 'file') {
+			} else if ($page->savedTo == 'file') {
 				if (unlink($url)) {
 					echo 'Page has been deleted.<br>';
 				} else {
