@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	if (count($errors) == 0) {
 		// Input has was valid
 		$mapper = new Mapper();
-		$result = $mapper->RegisterUser($email, $password, $displayName);
+		$result = $mapper->addNewUser($email, $password, $displayName);
 		unset($mapper);
 		if ($result === true) {
 			// User was successfully registered

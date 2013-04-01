@@ -6,9 +6,17 @@ if (is_file('maintenance')) {
 	echo file_get_contents('maintenance');
 	exit;
 }
+// Define globals
+$GLOBALS['errors'] = '';
+require_once('includes/error.class.php');
+require_once('includes/errors.class.php');
+require_once('includes/mapper.class.php'); /* Contains the mapper class used to connect to the database */
+require_once('includes/functions.inc.php'); /* Contains various functions used around the site */
+require_once('includes/user.class.php');
+$errors = new Errors();
 if (!is_file('includes/config.inc.php')) {
 	if ($_GET['page'] == 'install.php') {
-		echo eval('?>' . file_get_contents('install.php'));
+		include('install.php');
 	} else {
 		header('Location: install.php');
 		echo 'No config file was found. Please <a href="install.php">install Yetii CMS</a>.<br>';
@@ -18,8 +26,6 @@ if (!is_file('includes/config.inc.php')) {
 	require_once('includes/config.inc.php'); /* Database connection */
 }
 require_once('includes/simple_html_dom.php'); /* Used to manipulate the supplied template */
-require_once('includes/mapper.class.php'); /* Contains the mapper class used to connect to the database */
-require_once('includes/functions.inc.php'); /* Contains various functions used around the site */
 require_once('includes/page.class.php'); /* Contains the page class used to create a page */
 require_once('includes/snippet.class.php'); /* Contains the class used to display snippets */
 require_once('includes/yetii.class.php');

@@ -2,8 +2,6 @@
 config.inc.php
 /_maintenance
 /.temp/*
-/lists.example.php
-/install*.php
 *.scss
 /images/*
 /snippets/*

@@ -8,6 +8,47 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
  */
 class Mapper {
+	const QUERY_CREATE_TABLES = "CREATE TABLE IF NOT EXISTS `links` (
+								  `link_id` smallint(6) NOT NULL AUTO_INCREMENT,
+								  `name` varchar(255) NOT NULL,
+								  `use_root` tinyint(1) NOT NULL,
+								  `url` text NOT NULL,
+								  `title` varchar(255) NOT NULL,
+								  `target` varchar(12) NOT NULL,
+								  `order` int(11) NOT NULL,
+								  `required_auth` smallint(11) NOT NULL DEFAULT '0',
+								  PRIMARY KEY (`link_id`)
+								);
+
+								CREATE TABLE IF NOT EXISTS `pages` (
+								  `page_url` varchar(255) NOT NULL,
+								  `page_name` varchar(128) NOT NULL,
+								  `required_auth` tinyint(4) NOT NULL,
+								  `page_content` longtext NOT NULL,
+								  `meta_description` varchar(128) NOT NULL,
+								  PRIMARY KEY (`page_url`)
+								);
+
+								CREATE TABLE IF NOT EXISTS `settings` (
+								  `website_name` varchar(255) NOT NULL,
+								  `version` varchar(25) NOT NULL,
+								  `version_channel` varchar(30) NOT NULL,
+								  `template` varchar(255) NOT NULL,
+								  `language` varchar(12) NOT NULL
+								);
+
+								CREATE TABLE IF NOT EXISTS `users` (
+								  `user_id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
+								  `email` varchar(255) NOT NULL,
+								  `password` varchar(255) NOT NULL,
+								  `display_name` varchar(64) NOT NULL,
+								  `auth_level` tinyint(4) NOT NULL,
+								  `salt` varchar(255) NOT NULL,
+								  PRIMARY KEY (`user_id`),
+								  UNIQUE KEY `display_name` (`display_name`)
+								);";
+	const QUERY_EMAIL_EXISTS = 'SELECT COUNT(user_id) as count FROM users WHERE email = ?';
+	const QUERY_DISPLAY_NAME_EXISTS = 'SELECT COUNT(user_id) as count FROM users WHERE display_name = ?';
 	const QUERY_GET_SETTINGS = "SELECT website_name, version, version_channel, template, language FROM settings";
 	const QUERY_GET_PAGE = "SELECT page_name, required_auth, page_content, meta_description FROM pages WHERE page_url = ?";
 	const QUERY_UPDATE_PAGE_URL = "UPDATE pages SET page_url = ? WHERE page_url = ?";
@@ -21,13 +62,33 @@ class Mapper {
 	const QUERY_CHECK_USER_INFORMATION = "SELECT user_id, auth_level, display_name FROM users WHERE email = ? AND password = ?";
 	const QUERY_DELETE_PAGE = "DELETE FROM pages WHERE page_url = ?";
 	protected $dbh;
+	private $error = false;
 
 	/**
 	 * Creates the PDO object which in-turn opens the database
-	 * Gets the database host, name, username and password from the configuration file
+	 * The database host, name, username and password are stored in the configuration file
 	 */
 	public function __construct() {
-		$this->dbh = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASS);
+		try {
+			$this->dbh = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASS);
+		} catch (PDOException $e) {
+			$this->error = 'Error establishing database connection: ' . $e->getMessage() . '<br>';
+		}
+	}
+
+	public function getError() {
+		return $this->error;
+	}
+
+	public function createTables() {
+		$stmt = $this->dbh->prepare(self::QUERY_CREATE_TABLES);
+		if ($stmt->execute()) {
+			return true;
+		} else {
+			$error = $this->dbh->errorInfo();
+			$errors->add(($error[2] == '') ? Error::withDescription('Error creating tables.') : Error::withDescription('Error creating tables: ' . $error[2]));
+			return $errors;
+		}
 	}
 
 	/**
@@ -171,31 +232,55 @@ class Mapper {
 	}
 
 	/**
-	 * Registers a new user with the information supplied
+	 * Adds a new user to the database with the information supplied
 	 * @param  String  $email       Email address of the new user
 	 * @param  String  $password    Original (plaintext) password
 	 * @param  String  $displayName Display name of the user
 	 * @param  integer $authLevel   Authentication level of the user. Defaults to 0
-	 * @return bool                 true if the insertion was a success, false on error
+	 * @return bool                 true if the insertion was a success, Error on error
 	 */
-	public function registerUser($email, $password, $displayName, $authLevel = 0) {
-		// Generate the salt
-		$salt = generateRandomString(22, './0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
-		if ($salt !== false) {
-			// Create the hashed and salted password
-			$password = crypt($password, '$2a$10$' . $salt);
-			$stmt = $this->dbh->prepare(self::QUERY_REGISTER_USER);
-			if ($stmt->execute(array($email, $password, $displayName, $salt, $authLevel))) {
-				return true;
+	public function addNewUser($email, $password, $displayName, $authLevel = 0) {
+		// Check if the chosen email already exists
+		global $errors;
+		$stmt = $this->dbh->prepare(self::QUERY_EMAIL_EXISTS);
+		$stmt->execute(array($email));
+		$result = $stmt->fetch();
+		if ($result['count'] > 0) {
+			$errors->add(Error::withDescription('User with that email already exists'));
+		}
+		// Check if the chosen display name already exists
+		$stmt = $this->dbh->prepare(self::QUERY_DISPLAY_NAME_EXISTS);
+		$stmt->execute(array($email));
+		$result = $stmt->fetch();
+		if ($result['count'] > 0) {
+			$errors->add(Error::withDescription('User with that display name already exists'));
+		}
+		if (!$errors->hasErrors()) {
+			// Generate the salt
+			$salt = generateRandomString(22, './0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
+			if ($salt !== false) {
+				// Create the hashed and salted password
+				$password = crypt($password, '$2a$10$' . $salt);
+				$stmt = $this->dbh->prepare(self::QUERY_REGISTER_USER);
+				if ($stmt->execute(array($email, $password, $displayName, $salt, $authLevel))) {
+					return true;
+				} else {
+					$error = $this->dbh->errorInfo();
+					$errors->add(($error[2] == '') ? Error::withDescription('Error adding user to database.') : Error::withDescription('Error adding user to database: ' . $error[2]));
+					return $errors;
+				}
 			} else {
-				return false;
+				$errors->add(Error::withDescription('Error creating salt for password'));
+				return $errors;
 			}
+		} else {
+			return $errors;
 		}
 	}
 
 	/**
 	 * Checks whether a users credentials match a record in the database
-	 * @param  String $email    Email adress input by the user
+	 * @param  String $email    Email address input by the user
 	 * @param  String $password Plaintext password
 	 * @return mixed            false if credentials don't match a record. Array of users information if credentials match
 	 */
